@@ -16,6 +16,34 @@ describe('block-columns-container', () => {
     expect(container.querySelector('table')!.getAttribute('role')).toBe('presentation');
   });
 
+  // WS-03 (item 4): MSO ghost wrapper + explicit <td> width attributes for Outlook,
+  // asserted with the WS-02 stacking classes + WS-08 role="presentation" so none
+  // of the three can be dropped without this failing.
+  it('wraps the fluid table in an MSO ghost and sets td width attrs, preserving WS-02/WS-08', () => {
+    const cols = [<>a</>, <>b</>];
+    const { container } = render(<ColumnsContainer props={{ columnsCount: 2 }} columns={cols} />);
+    const html = container.innerHTML;
+    // MSO ghost wrapper (opening + closing) around the fluid table.
+    expect(html).toContain(
+      '<!--[if mso]><table role="presentation" align="center" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td valign="top"><![endif]-->'
+    );
+    expect(html).toContain('<!--[if mso]></td></tr></table><![endif]-->');
+    // Explicit width attribute on each cell (Outlook honors td width attrs).
+    expect(container.querySelectorAll('td[width="50%"]')).toHaveLength(2);
+    // Regression guard: WS-02 stacking classes + WS-08 role="presentation" survive.
+    expect(html).toContain('class="ebw-col-stack"');
+    expect(container.querySelector('table')!.getAttribute('role')).toBe('presentation');
+  });
+
+  it('uses fixed px width attrs when fixedWidths is set (item 4)', () => {
+    const cols = [<>a</>, <>b</>];
+    const { container } = render(
+      <ColumnsContainer props={{ columnsCount: 2, fixedWidths: [200, 400, null] }} columns={cols} />
+    );
+    expect(container.querySelector('td[width="200"]')).not.toBeNull();
+    expect(container.querySelector('td[width="400"]')).not.toBeNull();
+  });
+
   describe('columnsCount 2', () => {
     it('renders column children', () => {
       const columns = [<>bread</>, <>tomato</>, <>lettuce</>];

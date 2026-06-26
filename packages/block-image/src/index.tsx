@@ -32,6 +32,11 @@ export const ImagePropsSchema = z.object({
 
 export type ImageProps = z.infer<typeof ImagePropsSchema>;
 
+// `border` is a valid (legacy) <img> HTML attribute that Outlook's Word engine
+// honors to suppress the link-border around linked images, but React's
+// ImgHTMLAttributes type omits it. Spread this pre-cast object onto the <img>.
+const OUTLOOK_BORDER_ATTR = { border: 0 } as unknown as React.ImgHTMLAttributes<HTMLImageElement>;
+
 export function Image({ style, props }: ImageProps) {
   const sectionStyle: CSSProperties = {
     padding: getPadding(style?.padding),
@@ -55,8 +60,9 @@ export function Image({ style, props }: ImageProps) {
       height={height}
       // WS-03 (Outlook): the `border` HTML attribute (not just CSS) suppresses the
       // blue link-border Outlook draws around linked images. Width/height
-      // attributes above already give the Word engine explicit sizing.
-      border={0}
+      // attributes above already give the Word engine explicit sizing. React's
+      // ImgHTMLAttributes omits the legacy `border` attr, so spread it via a cast.
+      {...OUTLOOK_BORDER_ATTR}
       style={{
         width,
         height,

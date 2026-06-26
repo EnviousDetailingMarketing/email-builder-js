@@ -111,6 +111,10 @@ export default function renderToStaticMarkup(
     `<title>${escapeHtml(title)}</title>` +
     // MSO/Outlook conditional head slot — WS-03 (client-compat) filled this in.
     MSO_HEAD +
+    // WS-04 (dark mode) slot: the `color-scheme` metas above already opt the
+    // document into dark rendering; layer the `@media (prefers-color-scheme:dark)`
+    // overrides into this <style> (additive — must not remove RESET_CSS/registry
+    // CSS, and the WS-02 `{ dark: … }` registry markers feed in via registry.renderCss()).
     `<style type="text/css">${styleContent}</style>` +
     '</head>' +
     // id="body" backs the Gmail blue-link fix (`u + #body a`) in RESET_CSS.

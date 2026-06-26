@@ -20,18 +20,43 @@ const SINGLE_CONTAINER: Parameters<typeof renderToStaticMarkup>[0] = {
 describe('renderToStaticMarkup', () => {
   it('renders a full document with head and body', () => {
     const result = renderToStaticMarkup(SINGLE_CONTAINER, { rootBlockId: 'root' });
-    // Structure: doctype, html(lang) > head(...metas, style) > body(content)
-    expect(result.startsWith('<!DOCTYPE html><html lang="en"><head>')).toBe(true);
+    // Structure: doctype, html(lang + VML/Office namespaces for Outlook) > head > body
+    expect(
+      result.startsWith(
+        '<!DOCTYPE html><html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"><head>'
+      )
+    ).toBe(true);
     expect(result).toContain('<meta charset="utf-8">');
     expect(result).toContain('<meta name="viewport" content="width=device-width, initial-scale=1">');
     expect(result).toContain('<meta name="color-scheme" content="light dark">');
     expect(result).toContain('<meta name="supported-color-schemes" content="light dark">');
     expect(result).toContain('<title></title>');
     expect(result).toContain('<style type="text/css">');
-    // MSO conditional head slot for WS-03.
-    expect(result).toContain('<!--[if mso]><![endif]-->');
-    // Body content is unchanged from a bare render.
-    expect(result).toContain('</head><body><div></div></body></html>');
+    // WS-03: body carries id="body" to back the Gmail blue-link fix.
+    expect(result).toContain('</head><body id="body"><div></div></body></html>');
+  });
+
+  // WS-03 (client compat, item 4): MSO/Outlook head + cross-client reset CSS.
+  it('emits the MSO conditional head (Word engine fixes + 96dpi) in the <head>', () => {
+    const result = renderToStaticMarkup(SINGLE_CONTAINER, { rootBlockId: 'root' });
+    // Conditional comment wrapper so only Outlook on Windows parses it.
+    expect(result).toContain('<!--[if mso]>');
+    // 96dpi pin (otherwise Outlook scales the whole document up).
+    expect(result).toContain('<o:PixelsPerInch>96</o:PixelsPerInch>');
+    // Phantom-padding + line-height fixes scoped to the MSO style block.
+    expect(result).toContain('mso-table-lspace:0pt;mso-table-rspace:0pt');
+    expect(result).toContain('mso-line-height-rule:exactly');
+  });
+
+  it('emits the cross-client reset CSS (Gmail/iOS/Outlook.com fixes)', () => {
+    const result = renderToStaticMarkup(SINGLE_CONTAINER, { rootBlockId: 'root' });
+    // iOS / Apple Mail auto-link (data-detector) neutralizer.
+    expect(result).toContain('a[x-apple-data-detectors]');
+    // Gmail blue-link fix (paired with <body id="body">).
+    expect(result).toContain('u+#body a{');
+    // Outlook.com line-height + the webkit text-size lock.
+    expect(result).toContain('.ExternalClass');
+    expect(result).toContain('-webkit-text-size-adjust:100%');
   });
 
   it('applies lang, title and preheader options and escapes them', () => {
@@ -41,7 +66,7 @@ describe('renderToStaticMarkup', () => {
       title: 'Hi <b>there</b> & "you"',
       preheader: 'Preview & <text>',
     });
-    expect(result).toContain('<html lang="fr">');
+    expect(result).toContain('<html lang="fr" xmlns:v=');
     expect(result).toContain('<title>Hi &lt;b&gt;there&lt;/b&gt; &amp; &quot;you&quot;</title>');
     // Hidden preheader span with escaped content.
     expect(result).toContain('mso-hide:all;">Preview &amp; &lt;text&gt;</div>');
@@ -68,7 +93,7 @@ describe('renderToStaticMarkup', () => {
       { rootBlockId: 'root' }
     );
     // The missing child contributes nothing; the rest of the document still renders.
-    expect(result).toContain('</head><body><div></div></body></html>');
+    expect(result).toContain('</head><body id="body"><div></div></body></html>');
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
   });
@@ -76,7 +101,7 @@ describe('renderToStaticMarkup', () => {
   it('renders an empty body when the root block id is missing', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const result = renderToStaticMarkup({}, { rootBlockId: 'root' });
-    expect(result).toContain('</head><body></body></html>');
+    expect(result).toContain('</head><body id="body"></body></html>');
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
   });
@@ -109,9 +134,32 @@ describe('renderToStaticMarkup', () => {
 
   it('tags the columns with stack/fixed classes for a mixed config (item 2)', () => {
     const result = renderToStaticMarkup(MIXED_STACK_DOC, { rootBlockId: 'root' });
-    const body = result.slice(result.indexOf('<body>'));
+    const body = result.slice(result.indexOf('<body id="body">'));
     expect(body).toContain('class="ebw-col-stack"');
     expect(body).toContain('class="ebw-col-fixed"');
+  });
+
+  // WS-03 (item 4): the shell MSO ghost table is emitted by email-builder's own
+  // EmailLayoutReader, asserted here alongside the WS-02 responsive classes/media
+  // block and WS-08 role="presentation" so a future change cannot silently drop
+  // one while keeping the others. (The per-columns MSO ghost + td width attrs live
+  // in @usewaypoint/block-columns-container and are asserted in that package's own
+  // unit spec — this integration test resolves that package via its published
+  // dist, so it guards the shell + cross-package WS-02/WS-08 contract instead.)
+  it('wraps the shell in an MSO ghost table without dropping WS-02/WS-08 markers', () => {
+    const result = renderToStaticMarkup(MIXED_STACK_DOC, { rootBlockId: 'root' });
+    const body = result.slice(result.indexOf('<body id="body">'));
+    // Shell ghost pins Outlook to 600px, then closes after the fluid table.
+    expect(body).toContain('<!--[if mso]><table role="presentation" align="center" width="600"');
+    expect(body).toContain('<!--[if mso]></td></tr></table><![endif]-->');
+    // Regression guard: WS-02 responsive classes + media block survive.
+    expect(body).toContain('class="ebw-col-stack"');
+    expect(body).toContain('class="ebw-col-fixed"');
+    expect(result).toContain(
+      '@media (max-width:600px){.ebw-col-stack{display:block!important;width:100%!important;box-sizing:border-box!important;}}'
+    );
+    // Regression guard: WS-08 role="presentation" survives on the layout tables.
+    expect(body).toContain('role="presentation"');
   });
 
   it('registers the responsive baseline: fluid images + mobile body padding (item 3)', () => {
@@ -126,7 +174,9 @@ describe('renderToStaticMarkup', () => {
 
   it('keeps the head <style> deterministic across renders (snapshot)', () => {
     const result = renderToStaticMarkup(MIXED_STACK_DOC, { rootBlockId: 'root' });
-    const style = result.slice(result.indexOf('<style type="text/css">'), result.indexOf('</style>'));
+    // The main reset+registry <style> is the *last* one — MSO_HEAD emits its own
+    // `<style>` inside the `[if mso]` comment ahead of it.
+    const style = result.slice(result.lastIndexOf('<style type="text/css">'), result.lastIndexOf('</style>'));
     expect(style).toMatchSnapshot();
   });
 });

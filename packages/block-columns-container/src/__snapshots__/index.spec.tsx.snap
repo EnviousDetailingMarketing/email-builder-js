@@ -3,6 +3,9 @@
 exports[`block-columns-container columnsCount 2 renders column children 1`] = `
 <DocumentFragment>
   <div>
+    <span>
+      <!--[if mso]&gt;&lt;table role="presentation" align="center" width="100%" cellspacing="0" cellpadding="0" border="0"&gt;&lt;tr&gt;&lt;td valign="top"&gt;&lt;![endif]-->
+    </span>
     <table
       align="center"
       border="0"
@@ -20,18 +23,23 @@ exports[`block-columns-container columnsCount 2 renders column children 1`] = `
           <td
             class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
+            width="50%"
           >
             bread
           </td>
           <td
             class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
+            width="50%"
           >
             tomato
           </td>
         </tr>
       </tbody>
     </table>
+    <span>
+      <!--[if mso]&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;![endif]-->
+    </span>
   </div>
 </DocumentFragment>
 `;
@@ -39,6 +47,9 @@ exports[`block-columns-container columnsCount 2 renders column children 1`] = `
 exports[`block-columns-container columnsCount 2 uses padding correctly 1`] = `
 <DocumentFragment>
   <div>
+    <span>
+      <!--[if mso]&gt;&lt;table role="presentation" align="center" width="100%" cellspacing="0" cellpadding="0" border="0"&gt;&lt;tr&gt;&lt;td valign="top"&gt;&lt;![endif]-->
+    </span>
     <table
       align="center"
       border="0"
@@ -56,18 +67,23 @@ exports[`block-columns-container columnsCount 2 uses padding correctly 1`] = `
           <td
             class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 6px;"
+            width="50%"
           >
             bread
           </td>
           <td
             class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 6px; padding-right: 0px;"
+            width="50%"
           >
             tomato
           </td>
         </tr>
       </tbody>
     </table>
+    <span>
+      <!--[if mso]&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;![endif]-->
+    </span>
   </div>
 </DocumentFragment>
 `;
@@ -75,6 +91,9 @@ exports[`block-columns-container columnsCount 2 uses padding correctly 1`] = `
 exports[`block-columns-container columnsCount 3 renders column children 1`] = `
 <DocumentFragment>
   <div>
+    <span>
+      <!--[if mso]&gt;&lt;table role="presentation" align="center" width="100%" cellspacing="0" cellpadding="0" border="0"&gt;&lt;tr&gt;&lt;td valign="top"&gt;&lt;![endif]-->
+    </span>
     <table
       align="center"
       border="0"
@@ -92,24 +111,30 @@ exports[`block-columns-container columnsCount 3 renders column children 1`] = `
           <td
             class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
+            width="33.33%"
           >
             bread
           </td>
           <td
             class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
+            width="33.33%"
           >
             tomato
           </td>
           <td
             class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
+            width="33.33%"
           >
             lettuce
           </td>
         </tr>
       </tbody>
     </table>
+    <span>
+      <!--[if mso]&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;![endif]-->
+    </span>
   </div>
 </DocumentFragment>
 `;
@@ -117,6 +142,9 @@ exports[`block-columns-container columnsCount 3 renders column children 1`] = `
 exports[`block-columns-container columnsCount 3 uses padding correctly 1`] = `
 <DocumentFragment>
   <div>
+    <span>
+      <!--[if mso]&gt;&lt;table role="presentation" align="center" width="100%" cellspacing="0" cellpadding="0" border="0"&gt;&lt;tr&gt;&lt;td valign="top"&gt;&lt;![endif]-->
+    </span>
     <table
       align="center"
       border="0"
@@ -134,24 +162,30 @@ exports[`block-columns-container columnsCount 3 uses padding correctly 1`] = `
           <td
             class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 8px;"
+            width="33.33%"
           >
             bread
           </td>
           <td
             class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 4px; padding-right: 4px;"
+            width="33.33%"
           >
             tomato
           </td>
           <td
             class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 8px; padding-right: 0px;"
+            width="33.33%"
           >
             lettuce
           </td>
         </tr>
       </tbody>
     </table>
+    <span>
+      <!--[if mso]&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;![endif]-->
+    </span>
   </div>
 </DocumentFragment>
 `;
@@ -159,6 +193,9 @@ exports[`block-columns-container columnsCount 3 uses padding correctly 1`] = `
 exports[`block-columns-container renders with default values 1`] = `
 <DocumentFragment>
   <div>
+    <span>
+      <!--[if mso]&gt;&lt;table role="presentation" align="center" width="100%" cellspacing="0" cellpadding="0" border="0"&gt;&lt;tr&gt;&lt;td valign="top"&gt;&lt;![endif]-->
+    </span>
     <table
       align="center"
       border="0"
@@ -176,14 +213,19 @@ exports[`block-columns-container renders with default values 1`] = `
           <td
             class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
+            width="50%"
           />
           <td
             class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
+            width="50%"
           />
         </tr>
       </tbody>
     </table>
+    <span>
+      <!--[if mso]&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;![endif]-->
+    </span>
   </div>
 </DocumentFragment>
 `;

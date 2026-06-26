@@ -27,6 +27,11 @@ export const AvatarPropsSchema = z.object({
 
 export type AvatarProps = z.infer<typeof AvatarPropsSchema>;
 
+// `border` is a valid (legacy) <img> HTML attribute that Outlook's Word engine
+// honors to suppress the link-border around linked images, but React's
+// ImgHTMLAttributes type omits it. Spread this pre-cast object onto the <img>.
+const OUTLOOK_BORDER_ATTR = { border: 0 } as unknown as React.ImgHTMLAttributes<HTMLImageElement>;
+
 function getBorderRadius(shape: 'circle' | 'square' | 'rounded', size: number): number | undefined {
   switch (shape) {
     case 'rounded':
@@ -67,7 +72,7 @@ export function Avatar({ style, props }: AvatarProps) {
         width={size}
         // WS-03 (Outlook): suppress the link-border the Word engine draws around
         // linked images via the `border` HTML attribute (not just CSS).
-        border={0}
+        {...OUTLOOK_BORDER_ATTR}
         style={{
           outline: 'none',
           border: 'none',
