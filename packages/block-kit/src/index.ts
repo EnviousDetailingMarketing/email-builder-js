@@ -66,3 +66,9 @@ export const PADDING_SCHEMA = z
 
 export const getPadding = (padding: z.infer<typeof PADDING_SCHEMA>) =>
   padding ? `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px` : undefined;
+
+//
+// Style Registry — head <style> infrastructure for responsive / dark / hover CSS.
+//
+export { StyleRegistryProvider, useStyleRegistry, createStyleRegistry } from './StyleRegistry';
+export type { StyleRegistry, CollectingStyleRegistry } from './StyleRegistry';

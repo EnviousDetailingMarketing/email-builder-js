@@ -1,4 +1,5 @@
 export { default as renderToStaticMarkup } from './renderers/renderToStaticMarkup';
+export type { TRenderToStaticMarkupOptions } from './renderers/renderToStaticMarkup';
 
 export {
   ReaderBlockSchema,
