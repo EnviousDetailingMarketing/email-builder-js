@@ -14,6 +14,7 @@ import ColumnsContainerPropsSchema, {
 } from '../../../../documents/blocks/ColumnsContainer/ColumnsContainerPropsSchema';
 
 import BaseSidebarPanel from './helpers/BaseSidebarPanel';
+import BooleanInput from './helpers/inputs/BooleanInput';
 import ColumnWidthsInput from './helpers/inputs/ColumnWidthsInput';
 import RadioGroupInput from './helpers/inputs/RadioGroupInput';
 import SliderInput from './helpers/inputs/SliderInput';
@@ -33,6 +34,20 @@ export default function ColumnsContainerPanel({ data, setData }: ColumnsContaine
     } else {
       setErrors(res.error);
     }
+  };
+
+  const columnsCount = data.props?.columnsCount === 2 ? 2 : 3;
+  // Per-column "stack on mobile" flags, parallel to the columns and defaulting to
+  // stack (true). Stored as a length-3 tuple to match the block schema.
+  const stackOnMobile = data.props?.stackOnMobile ?? [];
+  const updateStackOnMobile = (columnIndex: number, value: boolean) => {
+    const next: (boolean | null | undefined)[] = [
+      stackOnMobile[0] ?? true,
+      stackOnMobile[1] ?? true,
+      stackOnMobile[2] ?? true,
+    ];
+    next[columnIndex] = value;
+    updateData({ ...data, props: { ...data.props, stackOnMobile: next } });
   };
 
   return (
@@ -81,6 +96,15 @@ export default function ColumnsContainerPanel({ data, setData }: ColumnsContaine
           <VerticalAlignBottomOutlined fontSize="small" />
         </ToggleButton>
       </RadioGroupInput>
+
+      {Array.from({ length: columnsCount }).map((_, index) => (
+        <BooleanInput
+          key={`stack-${columnsCount}-${index}`}
+          label={`Column ${index + 1}: stack on mobile`}
+          defaultValue={stackOnMobile[index] ?? true}
+          onChange={(value) => updateStackOnMobile(index, value)}
+        />
+      ))}
 
       <MultiStylePropertyPanel
         names={['backgroundColor', 'padding']}

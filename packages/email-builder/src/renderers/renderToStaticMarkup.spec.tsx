@@ -80,4 +80,53 @@ describe('renderToStaticMarkup', () => {
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
   });
+
+  // WS-02 — responsive layout & per-column stacking.
+  const MIXED_STACK_DOC: Parameters<typeof renderToStaticMarkup>[0] = {
+    root: {
+      type: 'EmailLayout',
+      data: { childrenIds: ['cols'] },
+    },
+    cols: {
+      type: 'ColumnsContainer',
+      data: {
+        props: {
+          columnsCount: 2,
+          // Column 0 stacks on mobile; column 1 stays side-by-side.
+          stackOnMobile: [true, false, null],
+          columns: [{ childrenIds: [] }, { childrenIds: [] }, { childrenIds: [] }],
+        },
+      },
+    },
+  };
+
+  it('injects the per-column stacking media block into the head <style> (item 2)', () => {
+    const result = renderToStaticMarkup(MIXED_STACK_DOC, { rootBlockId: 'root' });
+    expect(result).toContain(
+      '@media (max-width:600px){.ebw-col-stack{display:block!important;width:100%!important;box-sizing:border-box!important;}}'
+    );
+  });
+
+  it('tags the columns with stack/fixed classes for a mixed config (item 2)', () => {
+    const result = renderToStaticMarkup(MIXED_STACK_DOC, { rootBlockId: 'root' });
+    const body = result.slice(result.indexOf('<body>'));
+    expect(body).toContain('class="ebw-col-stack"');
+    expect(body).toContain('class="ebw-col-fixed"');
+  });
+
+  it('registers the responsive baseline: fluid images + mobile body padding (item 3)', () => {
+    const result = renderToStaticMarkup(MIXED_STACK_DOC, { rootBlockId: 'root' });
+    // Images scale down (max-width) but are never blown up past intrinsic size.
+    expect(result).toContain('img{max-width:100%;height:auto;}');
+    // Conservative mobile body-padding reduction.
+    expect(result).toContain('@media (max-width:600px){.ebw-email-body{padding:16px 0!important;}}');
+    // Fluid 600px shell.
+    expect(result).toContain('max-width:600px');
+  });
+
+  it('keeps the head <style> deterministic across renders (snapshot)', () => {
+    const result = renderToStaticMarkup(MIXED_STACK_DOC, { rootBlockId: 'root' });
+    const style = result.slice(result.indexOf('<style type="text/css">'), result.indexOf('</style>'));
+    expect(style).toMatchSnapshot();
+  });
 });

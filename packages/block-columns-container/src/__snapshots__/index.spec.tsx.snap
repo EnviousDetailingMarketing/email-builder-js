@@ -18,11 +18,13 @@ exports[`block-columns-container columnsCount 2 renders column children 1`] = `
           style="width: 100%;"
         >
           <td
+            class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
           >
             bread
           </td>
           <td
+            class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
           >
             tomato
@@ -52,11 +54,13 @@ exports[`block-columns-container columnsCount 2 uses padding correctly 1`] = `
           style="width: 100%;"
         >
           <td
+            class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 6px;"
           >
             bread
           </td>
           <td
+            class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 6px; padding-right: 0px;"
           >
             tomato
@@ -86,16 +90,19 @@ exports[`block-columns-container columnsCount 3 renders column children 1`] = `
           style="width: 100%;"
         >
           <td
+            class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
           >
             bread
           </td>
           <td
+            class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
           >
             tomato
           </td>
           <td
+            class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
           >
             lettuce
@@ -125,16 +132,19 @@ exports[`block-columns-container columnsCount 3 uses padding correctly 1`] = `
           style="width: 100%;"
         >
           <td
+            class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 8px;"
           >
             bread
           </td>
           <td
+            class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 4px; padding-right: 4px;"
           >
             tomato
           </td>
           <td
+            class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 8px; padding-right: 0px;"
           >
             lettuce
@@ -164,9 +174,11 @@ exports[`block-columns-container renders with default values 1`] = `
           style="width: 100%;"
         >
           <td
+            class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
           />
           <td
+            class="ebw-col-stack"
             style="box-sizing: content-box; vertical-align: middle; padding-left: 0px; padding-right: 0px;"
           />
         </tr>
