@@ -4,7 +4,7 @@ import { describe, expect, it } from '@jest/globals';
 import { render } from '@testing-library/react';
 import { createStyleRegistry, StyleRegistryProvider } from '@usewaypoint/block-kit';
 
-import { Button } from '.';
+import { Button, ButtonPropsSchema } from '.';
 
 function renderWithRegistry(node: React.ReactElement) {
   const registry = createStyleRegistry();
@@ -64,5 +64,103 @@ describe('block-button', () => {
     expect(html).not.toContain('ebw-d-bg-222222');
     expect(css).toContain('@media (prefers-color-scheme: dark){.ebw-d-fg-111111{color:');
     expect(css).toContain('[data-ogsc] .ebw-d-fg-111111{color:');
+  });
+
+  // WS-07 (item 15-B): explicit overrides + URL validation + outline border.
+  describe('WS-07 explicit controls', () => {
+    it('applies a custom borderRadius over the buttonStyle preset', () => {
+      const { container } = render(
+        <Button props={{ text: 'Go', url: 'https://x.test', borderRadius: 12, buttonStyle: 'rectangle' }} />
+      );
+      // Even though buttonStyle=rectangle (preset radius undefined), the explicit
+      // radius wins.
+      expect(container.querySelector('a')?.getAttribute('style')).toContain('border-radius: 12px');
+    });
+
+    it('applies custom inner padding over the size preset', () => {
+      const { container } = render(
+        <Button props={{ text: 'Go', url: 'https://x.test', buttonPadding: { vertical: 7, horizontal: 21 }, size: 'medium' }} />
+      );
+      expect(container.querySelector('a')?.getAttribute('style')).toContain('padding: 7px 21px');
+    });
+
+    it('renders an outline border for an outline button', () => {
+      const { container } = render(
+        <Button
+          props={{
+            text: 'Outline',
+            url: 'https://x.test',
+            buttonBackgroundColor: 'transparent',
+            border: { color: '#2563EB', width: 2, style: 'solid' },
+          }}
+        />
+      );
+      const style = container.querySelector('a')?.getAttribute('style') ?? '';
+      // jsdom lowercases hex in serialized inline styles.
+      expect(style.toLowerCase()).toContain('border: 2px solid #2563eb');
+    });
+
+    it('emits a VML stroke for an outline full-width rounded button (WS-03 VML intact)', () => {
+      const { container } = render(
+        <Button
+          props={{
+            text: 'Outline',
+            url: 'https://x.test',
+            fullWidth: true,
+            buttonStyle: 'rounded',
+            border: { color: '#2563EB', width: 2, style: 'solid' },
+          }}
+        />
+      );
+      const html = container.innerHTML;
+      // WS-03 VML markers still present.
+      expect(html).toContain('<v:roundrect');
+      expect(html).toContain('mso-width-percent:1000;');
+      expect(html).toContain('<w:anchorlock/>');
+      // WS-07: the border now drives the VML stroke instead of stroke="f".
+      expect(html).toContain('stroke="t"');
+      expect(html).toContain('strokecolor="#2563EB"');
+      expect(html).toContain('strokeweight="2px"');
+    });
+
+    it('keeps stroke="f" on a VML button with no border (no regression)', () => {
+      const { container } = render(
+        <Button props={{ text: 'Buy', url: 'https://x.test', fullWidth: true, buttonStyle: 'pill' }} />
+      );
+      expect(container.innerHTML).toContain('stroke="f"');
+    });
+
+    describe('url validation', () => {
+      const ok = (url: string) => ButtonPropsSchema.safeParse({ props: { url } }).success;
+      it('accepts http(s), mailto, tel, and relative urls', () => {
+        expect(ok('https://example.com')).toBe(true);
+        expect(ok('http://example.com/path?q=1')).toBe(true);
+        expect(ok('mailto:hi@example.com')).toBe(true);
+        expect(ok('tel:+15551234567')).toBe(true);
+        expect(ok('/relative/path')).toBe(true);
+        expect(ok('#anchor')).toBe(true);
+        expect(ok('//cdn.example.com/x')).toBe(true);
+      });
+      it('rejects empty/whitespace and dangerous schemes', () => {
+        expect(ok('')).toBe(false);
+        expect(ok('   ')).toBe(false);
+        expect(ok('javascript:alert(1)')).toBe(false);
+        expect(ok('data:text/html,evil')).toBe(false);
+        expect(ok('ftp://example.com')).toBe(false);
+      });
+      it('still accepts null/undefined url (optional)', () => {
+        expect(ButtonPropsSchema.safeParse({ props: { url: null } }).success).toBe(true);
+        expect(ButtonPropsSchema.safeParse({ props: {} }).success).toBe(true);
+      });
+    });
+
+    it('renders a button with an rgba background (snapshot)', () => {
+      // WS-07 (item 15-A): rgba color flows through the widened COLOR_SCHEMA.
+      expect(
+        render(
+          <Button props={{ text: 'Go', url: 'https://x.test', buttonBackgroundColor: 'rgba(37, 99, 235, 0.85)' }} />
+        ).asFragment()
+      ).toMatchSnapshot();
+    });
   });
 });

@@ -1,9 +1,7 @@
 import React, { CSSProperties } from 'react';
 import { z } from 'zod';
 
-import { COLOR_SCHEMA, getPadding, PADDING_SCHEMA, useStyleRegistry } from '@usewaypoint/block-kit';
-
-import { registerDarkColor } from './darkColor';
+import { COLOR_SCHEMA, getPadding, PADDING_SCHEMA, registerDarkColor, useStyleRegistry } from '@usewaypoint/block-kit';
 
 const FIXED_WIDTHS_SCHEMA = z
   .tuple([z.number().nullish(), z.number().nullish(), z.number().nullish()])

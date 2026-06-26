@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { getFontFamily, useStyleRegistry } from '@usewaypoint/block-kit';
+import { deriveDarkColor, getFontFamily, useStyleRegistry } from '@usewaypoint/block-kit';
 
-import { deriveDarkColor } from '../../darkColor';
 import { ReaderBlock } from '../../Reader/core';
 
 import { EmailLayoutProps } from './EmailLayoutPropsSchema';

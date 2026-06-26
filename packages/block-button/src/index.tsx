@@ -6,11 +6,54 @@ import {
   FONT_FAMILY_SCHEMA,
   getFontFamily,
   getPadding,
+  joinClasses,
   PADDING_SCHEMA,
+  registerDarkColor,
   useStyleRegistry,
 } from '@usewaypoint/block-kit';
 
-import { joinClasses, registerDarkColor } from './darkColor';
+//
+// WS-07 (item 15-B): button URL validation. We accept absolute http(s), mailto:,
+// tel:, and relative URLs (anchors, paths, protocol-relative), but reject empty /
+// whitespace-only strings and obviously dangerous schemes like `javascript:`.
+// Kept `.optional().nullable()` so existing/unset documents are unaffected; the
+// refinement only runs when a non-null string is present.
+//
+const URL_SCHEMA = z
+  .string()
+  .refine(
+    (value) => {
+      const v = value.trim();
+      if (v.length === 0) {
+        return false;
+      }
+      // Reject dangerous inline schemes outright.
+      if (/^(?:javascript|data|vbscript):/i.test(v)) {
+        return false;
+      }
+      // Explicitly-allowed schemes.
+      if (/^(?:https?|mailto|tel):/i.test(v)) {
+        return true;
+      }
+      // Anything else must be relative (no scheme). A bare `word:` style scheme
+      // we did not allow above is rejected.
+      return !/^[a-z][a-z0-9+.-]*:/i.test(v);
+    },
+    { message: 'Must be an http(s)/mailto/tel or relative URL' }
+  )
+  .optional()
+  .nullable();
+
+// WS-07 (item 15-B): optional outline/border for the button surface. Presets
+// remain the default (border unset == no border, unchanged markup).
+const BUTTON_BORDER_SCHEMA = z
+  .object({
+    color: COLOR_SCHEMA,
+    width: z.number().min(0).optional().nullable(),
+    style: z.enum(['solid', 'dashed', 'dotted', 'none']).optional().nullable(),
+  })
+  .optional()
+  .nullable();
 
 export const ButtonPropsSchema = z.object({
   style: z
@@ -32,7 +75,21 @@ export const ButtonPropsSchema = z.object({
       fullWidth: z.boolean().optional().nullable(),
       size: z.enum(['x-small', 'small', 'large', 'medium']).optional().nullable(),
       text: z.string().optional().nullable(),
-      url: z.string().optional().nullable(),
+      url: URL_SCHEMA,
+      // WS-07 (item 15-B): explicit overrides. When unset, the size/style presets
+      // above still supply the defaults, so existing documents render unchanged.
+      // `borderRadius` overrides the preset corner radius (px).
+      borderRadius: z.number().min(0).optional().nullable(),
+      // `buttonPadding` overrides the size preset's inner padding (px).
+      buttonPadding: z
+        .object({
+          vertical: z.number().min(0),
+          horizontal: z.number().min(0),
+        })
+        .optional()
+        .nullable(),
+      // `border` draws an outline around the button surface (outline buttons).
+      border: BUTTON_BORDER_SCHEMA,
     })
     .optional()
     .nullable(),
@@ -41,6 +98,10 @@ export const ButtonPropsSchema = z.object({
 export type ButtonProps = z.infer<typeof ButtonPropsSchema>;
 
 function getRoundedCorners(props: ButtonProps['props']) {
+  // WS-07: an explicit borderRadius wins over the buttonStyle preset.
+  if (typeof props?.borderRadius === 'number') {
+    return props.borderRadius;
+  }
   const buttonStyle = props?.buttonStyle ?? ButtonPropsDefaults.buttonStyle;
 
   switch (buttonStyle) {
@@ -54,7 +115,12 @@ function getRoundedCorners(props: ButtonProps['props']) {
   }
 }
 
-function getButtonSizePadding(props: ButtonProps['props']) {
+function getButtonSizePadding(props: ButtonProps['props']): readonly [number, number] {
+  // WS-07: explicit inner padding wins over the size preset. Tuple is
+  // [vertical, horizontal] to match the existing preset shape.
+  if (props?.buttonPadding) {
+    return [props.buttonPadding.vertical, props.buttonPadding.horizontal] as const;
+  }
   const size = props?.size ?? ButtonPropsDefaults.size;
   switch (size) {
     case 'x-small':
@@ -67,6 +133,22 @@ function getButtonSizePadding(props: ButtonProps['props']) {
     default:
       return [12, 20] as const;
   }
+}
+
+// WS-07: resolve the optional outline border into a CSS shorthand. Returns
+// `undefined` when no border is configured so unset documents are unchanged.
+function getButtonBorder(props: ButtonProps['props']): string | undefined {
+  const border = props?.border;
+  if (!border) {
+    return undefined;
+  }
+  const style = border.style ?? 'solid';
+  if (style === 'none') {
+    return undefined;
+  }
+  const width = typeof border.width === 'number' ? border.width : 1;
+  const color = border.color ?? '#000000';
+  return `${width}px ${style} ${color}`;
 }
 
 export const ButtonPropsDefaults = {
@@ -107,6 +189,7 @@ export function Button({ style, props }: ButtonProps) {
     textAlign: style?.textAlign ?? undefined,
     padding: getPadding(style?.padding),
   };
+  const border = getButtonBorder(props);
   const linkStyle: CSSProperties = {
     color: buttonTextColor,
     fontSize,
@@ -114,6 +197,7 @@ export function Button({ style, props }: ButtonProps) {
     fontWeight,
     backgroundColor: buttonBackgroundColor,
     borderRadius: cornerRadius,
+    border,
     display: fullWidth ? 'block' : 'inline-block',
     padding: `${padding[0]}px ${padding[1]}px`,
     textDecoration: 'none',
@@ -140,9 +224,19 @@ export function Button({ style, props }: ButtonProps) {
   // of the shorter side (capped at 50% = a full pill).
   const vmlHeight = Math.round(fontSize * 1.2 + padding[0] * 2);
   const arcsize = useVml ? Math.min(50, Math.round(((cornerRadius as number) / vmlHeight) * 100)) : 0;
+  // WS-07: keep the VML roundrect coherent with the optional outline border.
+  // Word/VML draws strokes via attributes, not CSS, so map the border onto
+  // stroke/strokecolor/strokeweight. With no border we preserve WS-03's
+  // `stroke="f"` (stroke off) so existing output is byte-identical.
+  const vmlStrokeAttrs =
+    props?.border && (props.border.style ?? 'solid') !== 'none'
+      ? `stroke="t" strokecolor="${escapeAttr(props.border.color ?? '#000000')}" strokeweight="${
+          typeof props.border.width === 'number' ? props.border.width : 1
+        }px"`
+      : 'stroke="f"';
   const vmlButton = useVml
     ? '<!--[if mso]>' +
-      `<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${escapeAttr(url)}" style="height:${vmlHeight}px;v-text-anchor:middle;mso-width-percent:1000;" arcsize="${arcsize}%" stroke="f" fillcolor="${escapeAttr(buttonBackgroundColor)}">` +
+      `<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${escapeAttr(url)}" style="height:${vmlHeight}px;v-text-anchor:middle;mso-width-percent:1000;" arcsize="${arcsize}%" ${vmlStrokeAttrs} fillcolor="${escapeAttr(buttonBackgroundColor)}">` +
       '<w:anchorlock/>' +
       `<center style="color:${escapeAttr(buttonTextColor)};font-family:${escapeAttr(fontFamily ?? 'Arial,Helvetica,sans-serif')};font-size:${fontSize}px;font-weight:${fontWeight};">${escapeHtml(text)}</center>` +
       '</v:roundrect>' +

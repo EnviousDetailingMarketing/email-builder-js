@@ -48,11 +48,38 @@ export function getFontFamily(fontFamily: z.infer<typeof FONT_FAMILY_SCHEMA>) {
   return undefined;
 }
 
-export const COLOR_SCHEMA = z
-  .string()
-  .regex(/^#[0-9a-fA-F]{6}$/)
-  .nullable()
-  .optional();
+//
+// Color value schema (WS-07, item 15-A — widened past the WS-01 freeze; logged
+// as a Change Request in TRACKING).
+//
+// Historically this only accepted 6-digit hex (`#RRGGBB`). It now also accepts
+// 3-/4-/8-digit hex, `rgb()/rgba()`, and the `transparent` keyword, while still
+// rejecting arbitrary garbage (it does NOT fall back to a bare `z.string()`).
+//
+// The regex below is anchored and matches, case-insensitively:
+//   - `#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA` (3/4/6/8 hex digits)
+//   - `rgb(...)` / `rgba(...)` with integer or percentage channels and an
+//     optional alpha (0..1, decimal, or percentage). Whitespace and either
+//     comma- or space-separated (CSS Color 4) syntaxes are tolerated loosely;
+//     the goal is to reject junk, not to be a full CSS parser.
+//   - the keyword `transparent`
+//
+// OUTLOOK CAVEAT: Outlook on Windows (the Word/MSO rendering engine) ignores
+// CSS alpha entirely — `rgba()` and 8-digit `#RRGGBBAA` hex are NOT honored.
+// In Outlook the color falls back to opaque (alpha dropped) or, for some
+// properties, is ignored outright. Authors who need cross-client transparency
+// should not rely on alpha here; use a solid color or an image. Apple Mail,
+// iOS Mail, and modern webmail clients honor alpha fine.
+//
+const HEX_COLOR = /#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})/;
+const RGB_CHANNEL = /\s*(?:\d{1,3}%?|\d{1,3}\.\d+%?)\s*/;
+const RGB_ALPHA = /\s*(?:0|1|0?\.\d+|\d{1,3}%)\s*/;
+const RGB_COLOR = new RegExp(
+  `rgba?\\(${RGB_CHANNEL.source}[, ]${RGB_CHANNEL.source}[, ]${RGB_CHANNEL.source}(?:[,/]${RGB_ALPHA.source})?\\)`
+);
+const COLOR_VALUE_REGEX = new RegExp(`^(?:${HEX_COLOR.source}|${RGB_COLOR.source}|transparent)$`, 'i');
+
+export const COLOR_SCHEMA = z.string().regex(COLOR_VALUE_REGEX).nullable().optional();
 
 export const PADDING_SCHEMA = z
   .object({
@@ -79,3 +106,10 @@ export type { StyleRegistry, CollectingStyleRegistry } from './StyleRegistry';
 // stripper shared with WS-05.
 //
 export { sanitizeEmailHtml, htmlToText } from './sanitize';
+
+//
+// Dark-mode color derivation (WS-04 Option A) — single canonical home (WS-07
+// CR-4). Previously copy-pasted into every color-bearing block package.
+//
+export { deriveDarkColor, registerDarkColor, joinClasses } from './darkColor';
+export type { DarkColorRole } from './darkColor';

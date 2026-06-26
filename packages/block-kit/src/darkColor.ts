@@ -1,4 +1,4 @@
-import type { StyleRegistry } from '@usewaypoint/block-kit';
+import type { StyleRegistry } from './StyleRegistry';
 
 //
 // WS-04 dark mode (Option A — auto-derived palette).
@@ -17,11 +17,12 @@ import type { StyleRegistry } from '@usewaypoint/block-kit';
 // configuration is required (Option B `darkModeColor` schema fields are a
 // documented WS-07 follow-up, not implemented here).
 //
-// NOTE: this file is copied verbatim into each color-bearing block package. In
-// the worktree test setup `@usewaypoint/block-kit` resolves to the main
-// checkout's pre-built dist, so a *new* shared block-kit export would be
-// invisible to these packages' unit specs. Follow-up CR for WS-07: centralize
-// this into block-kit once all dists are rebuilt together at merge time.
+// WS-07 (CR-4): this is now the single canonical implementation. It previously
+// lived as a byte-identical copy in each color-bearing block package; those
+// copies were collapsed into this block-kit export and the consumers re-point at
+// `@usewaypoint/block-kit`. (In a worktree, `@usewaypoint/block-kit` resolves to
+// the main checkout's pre-built dist, so consumers only see this move once all
+// dists are rebuilt together at merge time.)
 //
 export type DarkColorRole = 'fg' | 'bg';
 

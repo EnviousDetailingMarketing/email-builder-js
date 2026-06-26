@@ -1,5 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`block-container WS-07 border controls renders an rgba background (widened COLOR_SCHEMA) as a snapshot 1`] = `
+<DocumentFragment>
+  <div
+    style="background-color: rgba(0, 0, 0, 0.5);"
+  />
+</DocumentFragment>
+`;
+
 exports[`block-container renders with default values 1`] = `
 <DocumentFragment>
   <div />

@@ -6,11 +6,11 @@ import {
   FONT_FAMILY_SCHEMA,
   getFontFamily,
   getPadding,
+  joinClasses,
   PADDING_SCHEMA,
+  registerDarkColor,
   useStyleRegistry,
 } from '@usewaypoint/block-kit';
-
-import { joinClasses, registerDarkColor } from './darkColor';
 import EmailMarkdown from './EmailMarkdown';
 
 export const TextPropsSchema = z.object({

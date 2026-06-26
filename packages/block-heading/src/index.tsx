@@ -6,11 +6,11 @@ import {
   FONT_FAMILY_SCHEMA,
   getFontFamily,
   getPadding,
+  joinClasses,
   PADDING_SCHEMA,
+  registerDarkColor,
   useStyleRegistry,
 } from '@usewaypoint/block-kit';
-
-import { joinClasses, registerDarkColor } from './darkColor';
 
 export const HeadingPropsSchema = z.object({
   props: z
