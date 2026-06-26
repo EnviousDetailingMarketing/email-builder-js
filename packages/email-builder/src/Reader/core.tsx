@@ -10,6 +10,7 @@ import { Image, ImagePropsSchema } from '@usewaypoint/block-image';
 import { Spacer, SpacerPropsSchema } from '@usewaypoint/block-spacer';
 import { Text, TextPropsSchema } from '@usewaypoint/block-text';
 import {
+  BlockNotFoundError,
   buildBlockComponent,
   buildBlockConfigurationDictionary,
   buildBlockConfigurationSchema,
@@ -87,7 +88,16 @@ const BaseReaderBlock = buildBlockComponent(READER_DICTIONARY);
 export type TReaderBlockProps = { id: string };
 export function ReaderBlock({ id }: TReaderBlockProps) {
   const document = useReaderDocument();
-  return <BaseReaderBlock {...document[id]} />;
+  const block = document[id];
+  if (!block) {
+    // Defensive: a parent may reference a child id that no longer exists in the
+    // document (e.g. a dangling childId after a deletion, or hand-edited JSON).
+    // Render nothing instead of crashing the whole email render.
+    // eslint-disable-next-line no-console
+    console.warn(new BlockNotFoundError(id).message, id);
+    return null;
+  }
+  return <BaseReaderBlock {...block} />;
 }
 
 export type TReaderProps = {

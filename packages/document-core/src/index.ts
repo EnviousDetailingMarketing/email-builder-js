@@ -3,3 +3,4 @@ export { default as buildBlockConfigurationSchema } from './builders/buildBlockC
 export { default as buildBlockConfigurationDictionary } from './builders/buildBlockConfigurationDictionary';
 
 export { BlockConfiguration, DocumentBlocksDictionary } from './utils';
+export { BlockNotFoundError } from './utils';
