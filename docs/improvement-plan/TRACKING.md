@@ -12,8 +12,8 @@ Live status for all workstreams. Update the status column and tick the master ch
 | ----- | ------------- | -------------------------------- | ----- | ------ | ----------- | -------------------------------- |
 | WS-01 | Foundation    | 18, 19, head+registry, base a11y | 0     | 🟨     | Claude      | 18 + 19 ✅; registry + head ✅ FROZEN; base a11y ✅ |
 | WS-02 | Responsive    | 2, 3                             | 1     | ✅     | Claude      | per-column stackOnMobile + fluid shell via registry ✅; 600px contract + WS-03/04 markers set |
-| WS-03 | Client-Compat | 4                                | 1     | 🟦     | Claude      | running — builds on WS-02 markers (MSO ghost @600px)                    |
-| WS-04 | Dark-Mode     | 5                                | 1     | ⬜     | —           | unblocked — WS-01 registry ready |
+| WS-03 | Client-Compat | 4                                | 1     | ✅     | Claude      | MSO ghost shell+cols, VML buttons, client resets ✅; WS-02/08 markers preserved |
+| WS-04 | Dark-Mode     | 5                                | 1     | 🟦     | Claude      | running — fills WS-02/03 `{dark:…}` markers                            |
 | WS-05 | Plain-Text    | 6                                | 1     | ✅     | Claude      | renderToText + renderEmail ✅; CR-1 stopgap stripper |
 | WS-06 | Editor-UX     | 8, 11, 12, 21                    | 1/2   | 🟨     | Claude      | 12 ✅ 8 ✅ + error-boundary(19) ✅; 11 & 21 deferred (Phase 2); CR-2/CR-3 inbox |
 | WS-07 | Block-Styling | 15                               | 1     | ⬜     | —           | needs WS-01 block-kit            |
@@ -27,7 +27,7 @@ Live status for all workstreams. Update the status column and tick the master ch
 
 - [x] **2** — Per-column mobile stacking (WS-02)
 - [x] **3** — Full responsive support (WS-02 + WS-01 head)
-- [ ] **4** — Outlook & client compatibility (WS-03)
+- [x] **4** — Outlook & client compatibility (WS-03)
 - [ ] **5** — Dark mode preview + output (WS-04)
 - [x] **6** — Plain-text fallback (WS-05)
 
