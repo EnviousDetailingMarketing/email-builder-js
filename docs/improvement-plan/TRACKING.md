@@ -16,7 +16,7 @@ Live status for all workstreams. Update the status column and tick the master ch
 | WS-04 | Dark-Mode     | 5                                | 1     | ✅     | Claude      | auto-derived dark palette via registry + ogsc/ogsb + editor preview toggle ✅; CR-4 dedupe darkColor |
 | WS-05 | Plain-Text    | 6                                | 1     | ✅     | Claude      | renderToText + renderEmail ✅; CR-1 stopgap stripper                                          |
 | WS-06 | Editor-UX     | 8, 11, 12, 21                    | 1/2   | 🟨     | Claude      | 12 ✅ 8 ✅ + error-boundary(19) ✅; 11 & 21 deferred (Phase 2); CR-2/CR-3 inbox               |
-| WS-07 | Block-Styling | 15                               | 1     | ⬜     | —           | needs WS-01 block-kit                                                                         |
+| WS-07 | Block-Styling | 15                               | 1     | ✅     | Claude      | color schema widened (hex3/4/8, rgb/rgba, transparent) + button radius/padding/border + url validation + container border width/style + CR-4 darkColor dedupe ✅; WS-03 VML intact; editor alpha-picker → CR-6 |
 | WS-08 | Security-A11y | 17, 20                           | 1     | ✅     | Claude      | 17 ✅ (shared sanitizeEmailHtml) 20 ✅; inspector controls CR'd to WS-06                      |
 
 ---
@@ -39,7 +39,7 @@ Live status for all workstreams. Update the status column and tick the master ch
 
 ### Tier 3
 
-- [ ] **15** — Better color / button / container styling (WS-07)
+- [x] **15** — Better color / button / container styling (WS-07)
 
 ### Tier 4
 
@@ -68,5 +68,6 @@ When a team needs to edit a file owned by another team (per the ownership matrix
 | 2026-06-26 | WS-05         | `examples/.../App/TemplatePanel/`                                      | WS-06               | **CR-2:** wire `renderToText` into a new editor "Text" tab beside HTML/JSON.                                                                                                                          | ⬜ open        |
 | 2026-06-26 | WS-08         | `examples/.../InspectorDrawer/.../ImageSidebarPanel.tsx`, Avatar panel | WS-06               | **CR-3:** add inspector control for the new `decorative` boolean (Image/Avatar) + warn when an image has no `alt` and isn't decorative. Schema field + render behavior already shipped in the blocks. | ⬜ open        |
 | 2026-06-26 | WS-08         | `block-columns-container`, `block-image`, `block-avatar`               | WS-02 / WS-03       | **Heads-up (not a CR):** these files changed in batch 1 (`role="presentation"`, optional `decorative` field). WS-02 (stacking) / WS-03 (MSO) must rebase on batch 1 before editing them.              | ✅ done (WS-02/03 built on it) |
-| 2026-06-26 | WS-04         | `packages/*/src/darkColor.ts` (6 copies)                               | WS-07 (`block-kit`) | **CR-4:** WS-04 copied `darkColor.ts` (auto-derive dark palette) into 6 packages because block-kit's shared export was invisible to worktree unit specs. Now that dists rebuild together, collapse into one `@usewaypoint/block-kit` export.                                                              | ⬜ open        |
-| 2026-06-26 | WS-04         | color-bearing block schemas                                            | WS-07 (`block-kit`) | **CR-5 (follow-up hook):** Option B `darkModeColor` per-block overrides left as documented hook (comments in `EmailLayoutReader` + `darkColor.ts`); needs `.optional()` schema fields coordinated with block-kit when WS-07 runs.                                                                         | ⬜ open        |
+| 2026-06-26 | WS-04         | `packages/*/src/darkColor.ts` (6 copies)                               | WS-07 (`block-kit`) | **CR-4:** WS-04 copied `darkColor.ts` (auto-derive dark palette) into 6 packages because block-kit's shared export was invisible to worktree unit specs. Now that dists rebuild together, collapse into one `@usewaypoint/block-kit` export.                                                              | ✅ done (WS-07: all 6 were byte-identical; moved to `block-kit/src/darkColor.ts`, consumers rewired) |
+| 2026-06-26 | WS-04         | color-bearing block schemas                                            | WS-07 (`block-kit`) | **CR-5 (follow-up hook):** Option B `darkModeColor` per-block overrides left as documented hook (comments in `EmailLayoutReader` + `darkColor.ts`); needs `.optional()` schema fields coordinated with block-kit when WS-07 runs. WS-07 note: widened COLOR_SCHEMA makes this easier (a `darkModeColor` field reuses it directly); hook comments left untouched. | ⬜ open (deferred) |
+| 2026-06-26 | WS-07         | `examples/.../ColorInput/Picker.tsx`                                    | WS-06               | **CR-6:** editor color picker is hex-only (`HexColorPicker`, gated on 6-hex). Widened schema now accepts rgba/8-hex/transparent (renders fine from JSON/CRM) but the picker can't author them. Swap to `react-colorful` alpha-capable picker + conversion. `TODO(WS-07)` left in `Picker.tsx`.            | ⬜ open        |
