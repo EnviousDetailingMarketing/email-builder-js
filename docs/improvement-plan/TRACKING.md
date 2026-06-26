@@ -10,7 +10,7 @@ Live status for all workstreams. Update the status column and tick the master ch
 
 | WS    | Team          | Items                            | Phase | Status | Owner/Agent | Notes                            |
 | ----- | ------------- | -------------------------------- | ----- | ------ | ----------- | -------------------------------- |
-| WS-01 | Foundation    | 18, 19, head+registry, base a11y | 0     | 🟦     | Claude      | item 18 ✅ done; 19 + registry next |
+| WS-01 | Foundation    | 18, 19, head+registry, base a11y | 0     | 🟦     | Claude      | items 18 + 19 ✅ done; registry next |
 | WS-02 | Responsive    | 2, 3                             | 1     | ⬜     | —           | needs WS-01 registry             |
 | WS-03 | Client-Compat | 4                                | 1     | ⬜     | —           | shares columns w/ WS-02          |
 | WS-04 | Dark-Mode     | 5                                | 1     | ⬜     | —           | needs WS-01 registry             |
@@ -45,7 +45,7 @@ Live status for all workstreams. Update the status column and tick the master ch
 
 - [ ] **17** — Secure raw-HTML handling (WS-08)
 - [x] **18** — Shared `block-kit`, remove duplication (WS-01)
-- [ ] **19** — Renderer null-guard / graceful errors (WS-01)
+- [x] **19** — Renderer null-guard / graceful errors (WS-01)
 - [ ] **20** — Accessibility (WS-08 + WS-01 head)
 - [ ] **21** — Performance smells (WS-06, opportunistic)
 
