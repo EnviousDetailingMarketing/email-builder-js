@@ -73,6 +73,12 @@ type Props = {
   value: string;
   onChange: (v: string) => void;
 };
+// TODO(WS-07): the block-kit COLOR_SCHEMA now accepts alpha (rgba()/#RRGGBBAA),
+// but this picker is hex-only (react-colorful HexColorPicker/HexColorInput) and
+// gates onChange on /^#[0-9a-fA-F]{6}$/. Wiring an alpha-capable picker
+// (RgbaColorPicker + rgba<->hex conversion, plus widening the validation gate)
+// is deferred: doing it carelessly would silently drop alpha edits or break the
+// editor build. Alpha values authored via JSON/CRM still render correctly today.
 export default function Picker({ value, onChange }: Props) {
   const [internalValue, setInternalValue] = useState(value);
   const handleChange = (v: string) => {
