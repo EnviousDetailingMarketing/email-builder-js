@@ -53,6 +53,10 @@ export function Image({ style, props }: ImageProps) {
       src={props?.url ?? ''}
       width={width}
       height={height}
+      // WS-03 (Outlook): the `border` HTML attribute (not just CSS) suppresses the
+      // blue link-border Outlook draws around linked images. Width/height
+      // attributes above already give the Word engine explicit sizing.
+      border={0}
       style={{
         width,
         height,

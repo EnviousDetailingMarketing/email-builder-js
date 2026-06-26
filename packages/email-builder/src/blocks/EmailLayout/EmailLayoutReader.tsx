@@ -50,11 +50,18 @@ export default function EmailLayoutReader(props: EmailLayoutProps) {
       }}
     >
       {/*
-        WS-03 (Outlook/MSO) hook: wrap this centering table in an
-        `<!--[if mso]><table width="600" ...>` ghost so Outlook pins the shell to
-        600px. The fluid width:100% / max-width:600px below already drives every
-        other client; keep both in sync on the same 600px value.
+        WS-03 (Outlook/MSO): the MSO ghost table below pins the shell to 600px in
+        Outlook (Word engine ignores max-width), while the fluid width:100% /
+        max-width:600px table drives every other client. Both standardize on the
+        same 600px value. Emitted via dangerouslySetInnerHTML so React keeps the
+        conditional comment verbatim (same technique block-button uses for MSO).
       */}
+      <span
+        dangerouslySetInnerHTML={{
+          __html:
+            '<!--[if mso]><table role="presentation" align="center" width="600" cellspacing="0" cellpadding="0" border="0" style="width:600px;"><tr><td><![endif]-->',
+        }}
+      />
       <table
         align="center"
         width="100%"
@@ -82,6 +89,11 @@ export default function EmailLayoutReader(props: EmailLayoutProps) {
           </tr>
         </tbody>
       </table>
+      <span
+        dangerouslySetInnerHTML={{
+          __html: '<!--[if mso]></td></tr></table><![endif]-->',
+        }}
+      />
     </div>
   );
 }

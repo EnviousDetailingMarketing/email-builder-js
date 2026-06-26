@@ -21,11 +21,46 @@ export type TRenderToStaticMarkupOptions = {
 // Conservative cross-client reset. Lives in the head <style>; per-block inline
 // styles still win over it. Kept intentionally small — responsive/dark/hover
 // rules are layered on top by blocks via the Style Registry.
+//
+// WS-03 (client-compat) appended the client-reset block below the original
+// baseline: Outlook.com line-height (`#outlook a`, `.ExternalClass`), the iOS
+// auto-link / data-detector neutralizer (`a[x-apple-data-detectors]`), and the
+// Gmail blue-link fix (`u + #body a`, which is why <body> carries id="body").
 const RESET_CSS =
   'body{margin:0;padding:0;width:100%!important;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}' +
   'table,td{border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;}' +
   'img{border:0;line-height:100%;outline:none;text-decoration:none;display:block;-ms-interpolation-mode:bicubic;}' +
-  'a{text-decoration:none;}';
+  'a{text-decoration:none;}' +
+  // --- WS-03 client resets ---
+  // Outlook.com / Windows line-height normalization.
+  '#outlook a{padding:0;}' +
+  '.ExternalClass{width:100%;}' +
+  '.ExternalClass,.ExternalClass p,.ExternalClass span,.ExternalClass font,.ExternalClass td,.ExternalClass div{line-height:100%;}' +
+  // iOS / Apple Mail auto-linking (dates, addresses, phone numbers): keep the
+  // surrounding text styling instead of letting the client recolor/underline.
+  'a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;}' +
+  // Gmail blue-link fix — Gmail injects a <u> and recolors links; this re-inherits.
+  'u+#body a{color:inherit;text-decoration:none;}';
+
+// MSO/Outlook (Word engine) conditional head, injected only for Outlook on
+// Windows. `mso-table-lspace/rspace` kills Outlook's phantom table cell padding;
+// `mso-line-height-rule:exactly` stops Outlook inflating line-height; the
+// OfficeDocumentSettings xml pins rendering to 96dpi (otherwise Outlook scales
+// everything up ~120%). The body font is a non-!important fallback only — every
+// block emits its own inline web-safe font stack, so this never overrides a
+// document's font choice; it just gives the bare <body> a sane default.
+//
+// WS-04 (dark mode): Outlook.com strips/rewrites colors via [data-ogsc]; add the
+// `<!--[if mso]>`-scoped or [data-ogsc] dark overrides here — additive only.
+const MSO_HEAD =
+  '<!--[if mso]>' +
+  '<xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml>' +
+  '<style type="text/css">' +
+  'table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;}' +
+  'td,a,span,div{mso-line-height-rule:exactly;}' +
+  'body{font-family:Arial,Helvetica,sans-serif;}' +
+  '</style>' +
+  '<![endif]-->';
 
 function escapeHtml(value: string): string {
   return value
@@ -64,7 +99,9 @@ export default function renderToStaticMarkup(
 
   return (
     '<!DOCTYPE html>' +
-    `<html lang="${escapeHtml(lang)}">` +
+    // VML (v:) + Office (o:) namespaces let Outlook parse the OfficeDocumentSettings
+    // xml in MSO_HEAD and any future <v:roundrect>/VML markup blocks emit.
+    `<html lang="${escapeHtml(lang)}" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">` +
     '<head>' +
     '<meta charset="utf-8">' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">' +
@@ -72,11 +109,12 @@ export default function renderToStaticMarkup(
     '<meta name="color-scheme" content="light dark">' +
     '<meta name="supported-color-schemes" content="light dark">' +
     `<title>${escapeHtml(title)}</title>` +
-    // MSO/Outlook conditional head slot — WS-03 (client-compat) fills this in.
-    '<!--[if mso]><![endif]-->' +
+    // MSO/Outlook conditional head slot — WS-03 (client-compat) filled this in.
+    MSO_HEAD +
     `<style type="text/css">${styleContent}</style>` +
     '</head>' +
-    '<body>' +
+    // id="body" backs the Gmail blue-link fix (`u + #body a`) in RESET_CSS.
+    '<body id="body">' +
     renderPreheader(preheader) +
     body +
     '</body>' +

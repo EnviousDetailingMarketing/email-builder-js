@@ -95,11 +95,23 @@ export function ColumnsContainer({ style, columns, props }: ColumnsContainerProp
   return (
     <div style={wStyle}>
       {/*
-        WS-03 (Outlook/MSO) hook: wrap this fluid <table> in an `<!--[if mso]>`
-        ghost table (fixed-width <td>s sized from `fixedWidths`) so Outlook keeps
-        columns side-by-side while the live table below drives every other client.
-        Keep the .ebw-col-stack / .ebw-col-fixed classes intact when adding it.
+        WS-03 (Outlook/MSO): the fluid width:100% table below stays the non-Outlook
+        driver. Two additions make Outlook (Word engine) lay the columns out
+        correctly: (1) the `<!--[if mso]>` ghost presentation table wrapper emitted
+        via dangerouslySetInnerHTML, and (2) explicit `width` ATTRIBUTES on each
+        <td> (see TableCell) — Outlook honors td width attributes, CSS/!important
+        mobile rules still win in modern clients. WS-02's .ebw-col-stack /
+        .ebw-col-fixed classes and the role="presentation" are left untouched.
+        (A real table with multiple <td>s already renders side-by-side in Outlook,
+        so per-column ghost <td>s would require double-rendering the children; the
+        wrapper + width attributes give the same result without duplication.)
       */}
+      <span
+        dangerouslySetInnerHTML={{
+          __html:
+            '<!--[if mso]><table role="presentation" align="center" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td valign="top"><![endif]-->',
+        }}
+      />
       <table
         align="center"
         width="100%"
@@ -116,6 +128,11 @@ export function ColumnsContainer({ style, columns, props }: ColumnsContainerProp
           </tr>
         </tbody>
       </table>
+      <span
+        dangerouslySetInnerHTML={{
+          __html: '<!--[if mso]></td></tr></table><![endif]-->',
+        }}
+      />
     </div>
   );
 }
@@ -150,9 +167,14 @@ function TableCell({ index, props, columns }: Props) {
     paddingRight: getPaddingAfter(index, props),
     width: props.fixedWidths?.[index] ?? undefined,
   };
+  // WS-03: explicit `width` HTML attribute for Outlook column sizing. A fixed px
+  // width wins; otherwise fall back to the even split (table-layout:fixed already
+  // produces this in modern clients, and CSS/!important mobile stacking still
+  // overrides it). Belt-and-suspenders for the Word engine, no modern regression.
+  const widthAttr = props.fixedWidths?.[index] ?? (columnsCount === 3 ? '33.33%' : '50%');
   const children = (columns && columns[index]) ?? null;
   return (
-    <td className={className} style={style}>
+    <td className={className} style={style} width={widthAttr}>
       {children}
     </td>
   );

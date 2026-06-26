@@ -65,6 +65,9 @@ export function Avatar({ style, props }: AvatarProps) {
         src={imageUrl}
         height={size}
         width={size}
+        // WS-03 (Outlook): suppress the link-border the Word engine draws around
+        // linked images via the `border` HTML attribute (not just CSS).
+        border={0}
         style={{
           outline: 'none',
           border: 'none',
