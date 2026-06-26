@@ -72,3 +72,10 @@ export const getPadding = (padding: z.infer<typeof PADDING_SCHEMA>) =>
 //
 export { StyleRegistryProvider, useStyleRegistry, createStyleRegistry } from './StyleRegistry';
 export type { StyleRegistry, CollectingStyleRegistry } from './StyleRegistry';
+
+//
+// HTML sanitization — single audited allow-list shared by block-html and the
+// block-text markdown path (WS-08, item 17). `htmlToText` is the plain-text
+// stripper shared with WS-05.
+//
+export { sanitizeEmailHtml, htmlToText } from './sanitize';

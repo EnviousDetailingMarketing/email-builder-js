@@ -20,8 +20,14 @@
   },
   "author": "carlos@usewaypoint.com",
   "license": "MIT",
+  "dependencies": {
+    "insane": "^2.6.2"
+  },
   "peerDependencies": {
     "react": "^16 || ^17 || ^18",
     "zod": "^1 || ^2 || ^3"
+  },
+  "devDependencies": {
+    "@types/insane": "^1.0.0"
   }
 }

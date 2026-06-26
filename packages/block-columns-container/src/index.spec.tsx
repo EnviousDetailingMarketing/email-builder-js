@@ -10,6 +10,11 @@ describe('block-columns-container', () => {
     expect(render(<ColumnsContainer />).asFragment()).toMatchSnapshot();
   });
 
+  it('marks the layout table as role=presentation (item 20)', () => {
+    const { container } = render(<ColumnsContainer />);
+    expect(container.querySelector('table')!.getAttribute('role')).toBe('presentation');
+  });
+
   describe('columnsCount 2', () => {
     it('renders column children', () => {
       const columns = [<>bread</>, <>tomato</>, <>lettuce</>];

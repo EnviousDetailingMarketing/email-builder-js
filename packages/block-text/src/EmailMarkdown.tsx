@@ -1,80 +1,9 @@
-import insane, { AllowedTags } from 'insane';
+import { sanitizeEmailHtml } from '@usewaypoint/block-kit';
 import { marked, Renderer } from 'marked';
 import React, { CSSProperties, useMemo } from 'react';
 
-const ALLOWED_TAGS: AllowedTags[] = [
-  'a',
-  'article',
-  'b',
-  'blockquote',
-  'br',
-  'caption',
-  'code',
-  'del',
-  'details',
-  'div',
-  'em',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'hr',
-  'i',
-  'img',
-  'ins',
-  'kbd',
-  'li',
-  'main',
-  'ol',
-  'p',
-  'pre',
-  'section',
-  'span',
-  'strong',
-  'sub',
-  'summary',
-  'sup',
-  'table',
-  'tbody',
-  'td',
-  'th',
-  'thead',
-  'tr',
-  'u',
-  'ul',
-];
-const GENERIC_ALLOWED_ATTRIBUTES = ['style', 'title'];
-
-function sanitizer(html: string): string {
-  return insane(html, {
-    allowedTags: ALLOWED_TAGS,
-    allowedSchemes: ['http', 'https', 'mailto'],
-    allowedAttributes: {
-      ...ALLOWED_TAGS.reduce<Record<string, string[]>>((res, tag) => {
-        res[tag] = [...GENERIC_ALLOWED_ATTRIBUTES];
-        return res;
-      }, {}),
-      img: ['src', 'alt', 'width', 'height', ...GENERIC_ALLOWED_ATTRIBUTES],
-      table: ['width', ...GENERIC_ALLOWED_ATTRIBUTES],
-      td: ['align', 'width', ...GENERIC_ALLOWED_ATTRIBUTES],
-      th: ['align', 'width', ...GENERIC_ALLOWED_ATTRIBUTES],
-      a: ['href', 'target', ...GENERIC_ALLOWED_ATTRIBUTES],
-      ol: ['start', ...GENERIC_ALLOWED_ATTRIBUTES],
-      ul: ['start', ...GENERIC_ALLOWED_ATTRIBUTES],
-    },
-    filter: (token) => {
-      if (token.tag === 'a' && 'href' in token.attrs && token.attrs.href === undefined) {
-        token.attrs.href = '';
-      }
-      if (token.tag === 'img' && 'src' in token.attrs && token.attrs.src === undefined) {
-        token.attrs.src = '';
-      }
-      return true;
-    },
-  });
-}
+// Item 17: the markdown path now shares the single audited allow-list in
+// `block-kit` (`sanitizeEmailHtml`) instead of carrying its own copy.
 
 class CustomRenderer extends Renderer {
   table(header: string, body: string) {
@@ -106,7 +35,7 @@ function renderMarkdownString(str: string): string {
   if (typeof html !== 'string') {
     throw new Error('marked.parse did not return a string');
   }
-  return sanitizer(html);
+  return sanitizeEmailHtml(html);
 }
 
 type Props = {

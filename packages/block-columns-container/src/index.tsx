@@ -61,6 +61,7 @@ export function ColumnsContainer({ style, columns, props }: ColumnsContainerProp
         width="100%"
         cellPadding="0"
         border={0}
+        role="presentation"
         style={{ tableLayout: 'fixed', borderCollapse: 'collapse' }}
       >
         <tbody style={{ width: '100%' }}>

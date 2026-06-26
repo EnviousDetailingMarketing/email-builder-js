@@ -18,6 +18,11 @@ export const ImagePropsSchema = z.object({
       height: z.number().optional().nullable(),
       url: z.string().optional().nullable(),
       alt: z.string().optional().nullable(),
+      // Item 20 (a11y): mark an image as purely decorative. When true the image
+      // is intentionally hidden from assistive tech (alt="" + role=presentation)
+      // rather than accidentally missing a description. Optional so stored docs
+      // still parse.
+      decorative: z.boolean().optional().nullable(),
       linkHref: z.string().optional().nullable(),
       contentAlignment: z.enum(['top', 'middle', 'bottom']).optional().nullable(),
     })
@@ -38,9 +43,13 @@ export function Image({ style, props }: ImageProps) {
   const width = props?.width ?? undefined;
   const height = props?.height ?? undefined;
 
+  // A decorative image is intentionally hidden from assistive technology.
+  const decorative = props?.decorative ?? false;
+
   const imageElement = (
     <img
-      alt={props?.alt ?? ''}
+      alt={decorative ? '' : props?.alt ?? ''}
+      role={decorative ? 'presentation' : undefined}
       src={props?.url ?? ''}
       width={width}
       height={height}

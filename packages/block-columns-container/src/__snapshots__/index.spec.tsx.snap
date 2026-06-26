@@ -7,6 +7,7 @@ exports[`block-columns-container columnsCount 2 renders column children 1`] = `
       align="center"
       border="0"
       cellpadding="0"
+      role="presentation"
       style="table-layout: fixed; border-collapse: collapse;"
       width="100%"
     >
@@ -40,6 +41,7 @@ exports[`block-columns-container columnsCount 2 uses padding correctly 1`] = `
       align="center"
       border="0"
       cellpadding="0"
+      role="presentation"
       style="table-layout: fixed; border-collapse: collapse;"
       width="100%"
     >
@@ -73,6 +75,7 @@ exports[`block-columns-container columnsCount 3 renders column children 1`] = `
       align="center"
       border="0"
       cellpadding="0"
+      role="presentation"
       style="table-layout: fixed; border-collapse: collapse;"
       width="100%"
     >
@@ -111,6 +114,7 @@ exports[`block-columns-container columnsCount 3 uses padding correctly 1`] = `
       align="center"
       border="0"
       cellpadding="0"
+      role="presentation"
       style="table-layout: fixed; border-collapse: collapse;"
       width="100%"
     >
@@ -149,6 +153,7 @@ exports[`block-columns-container renders with default values 1`] = `
       align="center"
       border="0"
       cellpadding="0"
+      role="presentation"
       style="table-layout: fixed; border-collapse: collapse;"
       width="100%"
     >

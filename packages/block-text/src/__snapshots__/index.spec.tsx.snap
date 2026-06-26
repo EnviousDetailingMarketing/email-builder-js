@@ -2,7 +2,9 @@
 
 exports[`block-text renders with default values 1`] = `
 <DocumentFragment>
-  <div />
+  <p
+    style="margin: 0px;"
+  />
 </DocumentFragment>
 `;
 
@@ -64,9 +66,11 @@ exports[`block-text renders with safe markdown 1`] = `
 
 exports[`block-text renders without markdown 1`] = `
 <DocumentFragment>
-  <div>
+  <p
+    style="margin: 0px;"
+  >
     ## This is not &lt;span&gt;markdown&lt;/span&gt;
-  </div>
+  </p>
 </DocumentFragment>
 `;
 

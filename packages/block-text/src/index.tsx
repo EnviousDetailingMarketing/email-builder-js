@@ -48,5 +48,8 @@ export function Text({ style, props }: TextProps) {
   if (props?.markdown) {
     return <EmailMarkdown style={wStyle} markdown={text} />;
   }
-  return <div style={wStyle}>{text}</div>;
+  // Item 20 (a11y): render plain text as a semantic <p> rather than a <div>.
+  // `margin: 0` neutralizes the browser/client default paragraph margin so the
+  // rendered email layout is unchanged from the previous <div>.
+  return <p style={{ margin: 0, ...wStyle }}>{text}</p>;
 }

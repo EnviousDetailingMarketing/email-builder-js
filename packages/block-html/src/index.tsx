@@ -1,7 +1,14 @@
 import React, { CSSProperties } from 'react';
 import { z } from 'zod';
 
-import { COLOR_SCHEMA, FONT_FAMILY_SCHEMA, getFontFamily, getPadding, PADDING_SCHEMA } from '@usewaypoint/block-kit';
+import {
+  COLOR_SCHEMA,
+  FONT_FAMILY_SCHEMA,
+  getFontFamily,
+  getPadding,
+  PADDING_SCHEMA,
+  sanitizeEmailHtml,
+} from '@usewaypoint/block-kit';
 
 export const HtmlPropsSchema = z.object({
   style: z
@@ -38,5 +45,7 @@ export function Html({ style, props }: HtmlProps) {
   if (!children) {
     return <div style={cssStyle} />;
   }
-  return <div style={cssStyle} dangerouslySetInnerHTML={{ __html: children }} />;
+  // Item 17: never inject raw `contents`. For CRM use the default (and only)
+  // path is sanitize — there is no trusted-raw escape hatch.
+  return <div style={cssStyle} dangerouslySetInnerHTML={{ __html: sanitizeEmailHtml(children) }} />;
 }

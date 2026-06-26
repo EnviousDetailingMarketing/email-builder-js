@@ -17,6 +17,9 @@ export const AvatarPropsSchema = z.object({
       shape: z.enum(['circle', 'square', 'rounded']).optional().nullable(),
       imageUrl: z.string().optional().nullable(),
       alt: z.string().optional().nullable(),
+      // Item 20 (a11y): mark the avatar as purely decorative (alt="" +
+      // role=presentation). Optional so stored docs still parse.
+      decorative: z.boolean().optional().nullable(),
     })
     .optional()
     .nullable(),
@@ -46,7 +49,8 @@ export const AvatarPropsDefaults = {
 export function Avatar({ style, props }: AvatarProps) {
   const size = props?.size ?? AvatarPropsDefaults.size;
   const imageUrl = props?.imageUrl ?? AvatarPropsDefaults.imageUrl;
-  const alt = props?.alt ?? AvatarPropsDefaults.alt;
+  const decorative = props?.decorative ?? false;
+  const alt = decorative ? '' : props?.alt ?? AvatarPropsDefaults.alt;
   const shape = props?.shape ?? AvatarPropsDefaults.shape;
 
   const sectionStyle: CSSProperties = {
@@ -57,6 +61,7 @@ export function Avatar({ style, props }: AvatarProps) {
     <div style={sectionStyle}>
       <img
         alt={alt}
+        role={decorative ? 'presentation' : undefined}
         src={imageUrl}
         height={size}
         width={size}
