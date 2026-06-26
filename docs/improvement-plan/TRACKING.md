@@ -10,10 +10,10 @@ Live status for all workstreams. Update the status column and tick the master ch
 
 | WS    | Team          | Items                            | Phase | Status | Owner/Agent | Notes                            |
 | ----- | ------------- | -------------------------------- | ----- | ------ | ----------- | -------------------------------- |
-| WS-01 | Foundation    | 18, 19, head+registry, base a11y | 0     | 🟦     | Claude      | items 18 + 19 ✅ done; registry next |
-| WS-02 | Responsive    | 2, 3                             | 1     | ⬜     | —           | needs WS-01 registry             |
-| WS-03 | Client-Compat | 4                                | 1     | ⬜     | —           | shares columns w/ WS-02          |
-| WS-04 | Dark-Mode     | 5                                | 1     | ⬜     | —           | needs WS-01 registry             |
+| WS-01 | Foundation    | 18, 19, head+registry, base a11y | 0     | 🟨     | Claude      | 18 + 19 ✅; registry + head ✅ FROZEN; base a11y ✅ |
+| WS-02 | Responsive    | 2, 3                             | 1     | ⬜     | —           | unblocked — WS-01 registry ready |
+| WS-03 | Client-Compat | 4                                | 1     | ⬜     | —           | unblocked — MSO head slot ready  |
+| WS-04 | Dark-Mode     | 5                                | 1     | ⬜     | —           | unblocked — WS-01 registry ready |
 | WS-05 | Plain-Text    | 6                                | 1     | ⬜     | —           | independent — can start now      |
 | WS-06 | Editor-UX     | 8, 11, 12, 21                    | 1/2   | ⬜     | —           | independent — start w/ 12 then 8 |
 | WS-07 | Block-Styling | 15                               | 1     | ⬜     | —           | needs WS-01 block-kit            |
@@ -53,8 +53,8 @@ Live status for all workstreams. Update the status column and tick the master ch
 
 - [x] Git repo already configured (fork: `EnviousDetailingMarketing/email-builder-js`, branch `main`)
 - [ ] `upstream` remote added to sync with original `usewaypoint/email-builder-js` (optional)
-- [ ] Style Registry API frozen + documented (WS-01)
-- [ ] `<head>` / meta / viewport / color-scheme infra (WS-01)
+- [x] Style Registry API frozen + documented (WS-01)
+- [x] `<head>` / meta / viewport / color-scheme infra (WS-01)
 - [ ] Cross-client QA matrix established (`testing.md`)
 
 ---

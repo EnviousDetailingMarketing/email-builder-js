@@ -52,17 +52,17 @@
 **Problem:** `renderToStaticMarkup.tsx` emits only `<!DOCTYPE html><html><body>…`. No head, no `<style>`, so media queries / dark mode / hover are impossible.
 
 ### Tasks — document head
-- [ ] Rewrite `renderToStaticMarkup` to emit a full head:
+- [x] Rewrite `renderToStaticMarkup` to emit a full head:
   - `<html lang="…">` (default `"en"`, overridable via opts)
   - `<meta charset="utf-8">`, `<meta name="viewport" content="width=device-width, initial-scale=1">`
   - `<meta name="color-scheme" content="light dark">` + `<meta name="supported-color-schemes" content="light dark">`
   - `<title>` (from opts, default empty-safe)
   - MSO conditional block placeholder (WS-03 fills) and a **client reset** stylesheet (Gmail/iOS link normalization, `-webkit-text-size-adjust`, image `display:block` defaults, `table{border-collapse}`).
   - **Preheader/preview-text** hidden span hook (opts.preheader) — cheap win, add it here.
-- [ ] Add `renderToStaticMarkup` options: `{ rootBlockId, lang?, title?, preheader? }`. Keep `rootBlockId` working exactly as today (backward compatible).
+- [x] Add `renderToStaticMarkup` options: `{ rootBlockId, lang?, title?, preheader? }`. Keep `rootBlockId` working exactly as today (backward compatible). Type exported as `TRenderToStaticMarkupOptions` from `@usewaypoint/email-builder`.
 
-### Tasks — Style Registry (the frozen contract)
-- [ ] Implement a React-context registry. **Frozen API:**
+### Tasks — Style Registry (the frozen contract) ✅ FROZEN
+- [x] Implement a React-context registry. **Frozen API** (implemented in `packages/block-kit/src/StyleRegistry.tsx`):
 
 ```ts
 // from @usewaypoint/block-kit
@@ -79,19 +79,21 @@ interface StyleRegistry {
 function useStyleRegistry(): StyleRegistry;   // hook for block components
 ```
 
-- [ ] During `renderToStaticMarkup`, run a **two-pass render** (or a collecting context): render body → collect all rules → inject into the single `<head><style>` → emit final HTML. (renderToStaticMarkup is synchronous, so a mutable registry object passed through context + a body render then a head render is sufficient — no async needed.)
-- [ ] Rules must be **deterministic / order-stable** (sort by key) so snapshots are stable.
-- [ ] Provide a stable class-name helper so two columns with the same stack setting share one class (avoid per-instance class explosion). Document the convention.
-- [ ] Tests: a block that calls `addClass` produces a `<style>` in head with the `@media` wrappers; verify dedup and ordering.
+- [x] During `renderToStaticMarkup`, use a **collecting context**: a mutable registry is passed via `StyleRegistryProvider`; the body renders once (blocks register rules as a pure side effect), then the head — containing the single collected `<head><style>` — is assembled as a string before the already-rendered body. No async, no double render.
+- [x] Rules must be **deterministic / order-stable** (sorted by key in `renderCss()`) so snapshots are stable.
+- [x] Stable class-name convention: reuse the same `className` across instances that share a setting (e.g. every stacking column) so they dedup to one class — `addRule`/`addClass` are first-write-wins per key. Documented in `StyleRegistry.tsx`.
+- [x] Tests: `block-kit/tests/StyleRegistry.spec.tsx` covers dedup, key-sorted ordering, `@media` wrappers, variant selection, shared-class dedup, and the no-op-outside-provider fallback.
 
-**Acceptance:** A trivial block can register `.foo { } @media(max-width:600px){.foo{…}}` and it appears once, deterministically, in `<head>`. The registry API is documented here and **frozen**.
+**Acceptance:** A block can register a class with mobile/dark variants and it appears once, deterministically, in `<head>`. ✅ The registry API is documented here and **frozen** — additive changes only.
+
+> **Note on scope:** `addClass.base` is supported but emits a top-level `.className{…}` rule; prefer inline styles for always-on properties (clients strip `<style>`). The registry is for what inline styles *cannot* express: `@media` and pseudo-selectors. The live editor `<Reader/>` has no provider, so `useStyleRegistry()` returns a no-op there — head-injected CSS only materializes through `renderToStaticMarkup`. Wiring the editor preview to a registry (so responsive/dark previews work in-canvas) is deferred to the consuming workstream.
 
 ---
 
 ## Base accessibility scaffold (part of item 20; rest is WS-08)
 
-- [ ] `lang` on `<html>`, `<title>`, `<meta viewport>` (above).
-- [ ] Mark the `EmailLayout` centering table and (coordinate w/ WS-02) the columns table `role="presentation"`.
+- [x] `lang` on `<html>`, `<title>`, `<meta viewport>` (above).
+- [x] `EmailLayout` centering table marked `role="presentation"` (already present). Columns table left to WS-02 (it owns that file).
 
 ---
 
