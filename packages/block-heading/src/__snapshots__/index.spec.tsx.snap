@@ -11,6 +11,7 @@ exports[`Heading renders with default values 1`] = `
 exports[`Heading renders with style 1`] = `
 <DocumentFragment>
   <h1
+    class="ebw-d-fg-101010"
     style="color: rgb(16, 16, 16); background-color: rgb(68, 67, 51); font-weight: normal; text-align: center; margin: 0px; font-family: Bahnschrift, "DIN Alternate", "Franklin Gothic Medium", "Nimbus Sans Narrow", sans-serif-condensed, sans-serif; font-size: 32px; padding: 15px 8px 10px 24px;"
   >
     Hello world!

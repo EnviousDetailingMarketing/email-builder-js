@@ -2,8 +2,17 @@ import React from 'react';
 
 import { describe, expect, it } from '@jest/globals';
 import { render } from '@testing-library/react';
+import { createStyleRegistry, StyleRegistryProvider } from '@usewaypoint/block-kit';
 
 import { Text } from '.';
+
+// WS-04: render a block under a real Style Registry and return both the markup
+// and the CSS it registered, so dark-mode rules can be asserted.
+function renderWithRegistry(node: React.ReactElement) {
+  const registry = createStyleRegistry();
+  const { container } = render(<StyleRegistryProvider registry={registry}>{node}</StyleRegistryProvider>);
+  return { html: container.innerHTML, css: registry.renderCss() };
+}
 
 describe('block-text', () => {
   it('renders with default values', () => {
@@ -81,5 +90,27 @@ Powered by [Waypoint](https://usewaypoint.com)`,
         />
       ).asFragment()
     ).toMatchSnapshot();
+  });
+
+  // WS-04 (dark mode, Option A): auto-derived overrides for color + background.
+  it('registers prefers-color-scheme + [data-ogsc]/[data-ogsb] dark overrides for its colors', () => {
+    const { html, css } = renderWithRegistry(
+      <Text style={{ color: '#333333', backgroundColor: '#eeeeee' }} props={{ text: 'hi' }} />
+    );
+    // Classes are applied to the rendered element …
+    expect(html).toContain('class="ebw-d-fg-333333 ebw-d-bg-eeeeee"');
+    // … and the registry carries both the @media dark rule and the Outlook.com hooks.
+    expect(css).toContain('@media (prefers-color-scheme: dark){.ebw-d-fg-333333{color:');
+    expect(css).toContain('@media (prefers-color-scheme: dark){.ebw-d-bg-eeeeee{background-color:');
+    expect(css).toContain('[data-ogsc] .ebw-d-fg-333333{color:');
+    expect(css).toContain('[data-ogsb] .ebw-d-bg-eeeeee{background-color:');
+    // Inline styles win specificity, so the dark overrides are !important.
+    expect(css).toContain('!important');
+  });
+
+  it('adds no dark class or CSS when no colors are set (no light-mode regression)', () => {
+    const { html, css } = renderWithRegistry(<Text props={{ text: 'hi' }} />);
+    expect(html).not.toContain('ebw-d-');
+    expect(css).toBe('');
   });
 });

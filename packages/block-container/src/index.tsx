@@ -1,7 +1,9 @@
 import React, { CSSProperties } from 'react';
 import { z } from 'zod';
 
-import { COLOR_SCHEMA, getPadding, PADDING_SCHEMA } from '@usewaypoint/block-kit';
+import { COLOR_SCHEMA, getPadding, PADDING_SCHEMA, useStyleRegistry } from '@usewaypoint/block-kit';
+
+import { registerDarkColor } from './darkColor';
 
 export const ContainerPropsSchema = z.object({
   style: z
@@ -28,6 +30,11 @@ function getBorder(style: ContainerProps['style']) {
 }
 
 export function Container({ style, children }: ContainerProps) {
+  // WS-04 (dark mode, Option A): auto-derived dark override for the container
+  // background, registered via the Style Registry and applied by class. The
+  // border color is intentionally left as-authored.
+  const registry = useStyleRegistry();
+  const darkClass = registerDarkColor(registry, style?.backgroundColor, 'bg');
   const wStyle: CSSProperties = {
     backgroundColor: style?.backgroundColor ?? undefined,
     border: getBorder(style),
@@ -35,7 +42,11 @@ export function Container({ style, children }: ContainerProps) {
     padding: getPadding(style?.padding),
   };
   if (!children) {
-    return <div style={wStyle} />;
+    return <div className={darkClass} style={wStyle} />;
   }
-  return <div style={wStyle}>{children}</div>;
+  return (
+    <div className={darkClass} style={wStyle}>
+      {children}
+    </div>
+  );
 }

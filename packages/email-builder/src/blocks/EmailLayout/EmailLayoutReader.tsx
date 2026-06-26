@@ -2,6 +2,7 @@ import React from 'react';
 
 import { getFontFamily, useStyleRegistry } from '@usewaypoint/block-kit';
 
+import { deriveDarkColor } from '../../darkColor';
 import { ReaderBlock } from '../../Reader/core';
 
 import { EmailLayoutProps } from './EmailLayoutPropsSchema';
@@ -10,6 +11,9 @@ import { EmailLayoutProps } from './EmailLayoutPropsSchema';
 // Registry (never a raw <style>). Stable class hooks on the email shell so the
 // rules dedup to a single copy regardless of document size.
 const EMAIL_BODY_CLASS = 'ebw-email-body';
+// WS-04 (dark mode): stable hook on the inner canvas table so its dark override
+// can target a class instead of fighting the inline backgroundColor.
+const EMAIL_CANVAS_CLASS = 'ebw-email-canvas';
 
 function getBorder({ borderColor }: EmailLayoutProps) {
   if (!borderColor) {
@@ -29,8 +33,31 @@ export default function EmailLayoutReader(props: EmailLayoutProps) {
   // Kept deliberately conservative — block-level paddings are left untouched so
   // existing documents render identically on desktop.
   registry.addClass(EMAIL_BODY_CLASS, { mobile: 'padding:16px 0!important;' });
-  // WS-04 (dark mode) hook: register the page-level dark background/text here via
-  // registry.addClass(EMAIL_BODY_CLASS, { dark: '…' }) — additive only.
+
+  // WS-04 (dark mode, Option A — auto-derived palette). The page background +
+  // body text and the inner canvas card each get a `prefers-color-scheme: dark`
+  // override (Apple Mail / iOS / supported Gmail), plus the equivalent
+  // [data-ogsc]/[data-ogsb] hooks for Outlook.com / Windows, which strips media
+  // queries. `!important` because the inline backgroundColor/color win on
+  // specificity. Colors are derived from the document's own backdrop/text/canvas
+  // (or the light defaults) — authors configure nothing. Option B (per-element
+  // `darkModeColor` overrides) is a documented WS-07 follow-up.
+  const darkBackdrop = deriveDarkColor(props.backdropColor ?? '#F5F5F5', 'bg');
+  const darkText = deriveDarkColor(props.textColor ?? '#262626', 'fg');
+  const darkCanvas = deriveDarkColor(props.canvasColor ?? '#FFFFFF', 'bg');
+  registry.addClass(EMAIL_BODY_CLASS, {
+    dark: `background-color:${darkBackdrop}!important;color:${darkText}!important;`,
+  });
+  registry.addRule(
+    `${EMAIL_BODY_CLASS}::ogs`,
+    `[data-ogsc] .${EMAIL_BODY_CLASS}{color:${darkText}!important;}` +
+      `[data-ogsb] .${EMAIL_BODY_CLASS}{background-color:${darkBackdrop}!important;}`
+  );
+  registry.addClass(EMAIL_CANVAS_CLASS, { dark: `background-color:${darkCanvas}!important;` });
+  registry.addRule(
+    `${EMAIL_CANVAS_CLASS}::ogs`,
+    `[data-ogsb] .${EMAIL_CANVAS_CLASS}{background-color:${darkCanvas}!important;}`
+  );
 
   return (
     <div
@@ -65,6 +92,7 @@ export default function EmailLayoutReader(props: EmailLayoutProps) {
       <table
         align="center"
         width="100%"
+        className={EMAIL_CANVAS_CLASS}
         style={{
           margin: '0 auto',
           // Fluid shell: full width on small screens, capped at 600px elsewhere.

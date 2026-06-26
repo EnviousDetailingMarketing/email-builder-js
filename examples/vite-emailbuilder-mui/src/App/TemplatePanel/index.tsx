@@ -1,24 +1,26 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
-import { MonitorOutlined, PhoneIphoneOutlined } from '@mui/icons-material';
+import { DarkModeOutlined, LightModeOutlined, MonitorOutlined, PhoneIphoneOutlined } from '@mui/icons-material';
 import { Box, Stack, SxProps, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
-import { Reader } from '@usewaypoint/email-builder';
+import { Reader, renderToStaticMarkup } from '@usewaypoint/email-builder';
 
 import EditorBlock from '../../documents/editor/EditorBlock';
 import {
+  setSelectedColorScheme,
   setSelectedScreenSize,
   useDocument,
+  useSelectedColorScheme,
   useSelectedMainTab,
   useSelectedScreenSize,
 } from '../../documents/editor/EditorContext';
 import ToggleInspectorPanelButton from '../InspectorDrawer/ToggleInspectorPanelButton';
 import ToggleSamplesPanelButton from '../SamplesDrawer/ToggleSamplesPanelButton';
 
+import CanvasErrorBoundary from './CanvasErrorBoundary';
 import DownloadJson from './DownloadJson';
 import HtmlPanel from './HtmlPanel';
 import ImportJson from './ImportJson';
 import JsonPanel from './JsonPanel';
-import CanvasErrorBoundary from './CanvasErrorBoundary';
 import MainTabsGroup from './MainTabsGroup';
 import ShareButton from './ShareButton';
 import UndoRedoButtons from './UndoRedoButtons';
@@ -27,6 +29,22 @@ export default function TemplatePanel() {
   const document = useDocument();
   const selectedMainTab = useSelectedMainTab();
   const selectedScreenSize = useSelectedScreenSize();
+  const selectedColorScheme = useSelectedColorScheme();
+
+  // WS-04 dark preview: render the real export HTML and un-guard the dark media
+  // query so the (auto-derived) dark CSS we emit applies regardless of the host
+  // system's color-scheme setting, then show it in an isolated iframe. This is
+  // the most faithful preview of the rendered output. Limitations: it force-
+  // applies the @media block (real clients trigger it via the user's system
+  // setting), and the [data-ogsc]/[data-ogsb] Outlook.com hooks are inert here
+  // (they only activate inside Outlook's dark renderer).
+  const darkPreviewHtml = useMemo(() => {
+    if (selectedColorScheme !== 'dark') {
+      return null;
+    }
+    const html = renderToStaticMarkup(document, { rootBlockId: 'root' });
+    return html.split('@media (prefers-color-scheme: dark)').join('@media all');
+  }, [document, selectedColorScheme]);
 
   let mainBoxSx: SxProps = {
     height: '100%',
@@ -53,6 +71,10 @@ export default function TemplatePanel() {
     }
   };
 
+  const handleColorSchemeChange = (_: unknown, value: unknown) => {
+    setSelectedColorScheme(value === 'dark' ? 'dark' : 'light');
+  };
+
   const renderMainPanel = () => {
     switch (selectedMainTab) {
       case 'editor':
@@ -62,6 +84,17 @@ export default function TemplatePanel() {
           </Box>
         );
       case 'preview':
+        if (darkPreviewHtml !== null) {
+          return (
+            <Box sx={mainBoxSx}>
+              <iframe
+                title="Dark mode preview"
+                srcDoc={darkPreviewHtml}
+                style={{ width: '100%', height: '100%', minHeight: 400, border: 'none' }}
+              />
+            </Box>
+          );
+        }
         return (
           <Box sx={mainBoxSx}>
             <Reader document={document} rootBlockId="root" />
@@ -109,6 +142,18 @@ export default function TemplatePanel() {
               <ToggleButton value="mobile">
                 <Tooltip title="Mobile view">
                   <PhoneIphoneOutlined fontSize="small" />
+                </Tooltip>
+              </ToggleButton>
+            </ToggleButtonGroup>
+            <ToggleButtonGroup value={selectedColorScheme} exclusive size="small" onChange={handleColorSchemeChange}>
+              <ToggleButton value="light">
+                <Tooltip title="Light mode">
+                  <LightModeOutlined fontSize="small" />
+                </Tooltip>
+              </ToggleButton>
+              <ToggleButton value="dark">
+                <Tooltip title="Dark mode (preview tab)">
+                  <DarkModeOutlined fontSize="small" />
                 </Tooltip>
               </ToggleButton>
             </ToggleButtonGroup>

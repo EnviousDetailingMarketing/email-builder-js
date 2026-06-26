@@ -1,7 +1,16 @@
 import React, { CSSProperties } from 'react';
 import { z } from 'zod';
 
-import { COLOR_SCHEMA, FONT_FAMILY_SCHEMA, getFontFamily, getPadding, PADDING_SCHEMA } from '@usewaypoint/block-kit';
+import {
+  COLOR_SCHEMA,
+  FONT_FAMILY_SCHEMA,
+  getFontFamily,
+  getPadding,
+  PADDING_SCHEMA,
+  useStyleRegistry,
+} from '@usewaypoint/block-kit';
+
+import { joinClasses, registerDarkColor } from './darkColor';
 
 export const HeadingPropsSchema = z.object({
   props: z
@@ -34,6 +43,13 @@ export const HeadingPropsDefaults = {
 export function Heading({ props, style }: HeadingProps) {
   const level = props?.level ?? HeadingPropsDefaults.level;
   const text = props?.text ?? HeadingPropsDefaults.text;
+  // WS-04 (dark mode, Option A): auto-derived dark overrides for the heading
+  // color + background, registered via the Style Registry and applied by class.
+  const registry = useStyleRegistry();
+  const darkClass = joinClasses(
+    registerDarkColor(registry, style?.color, 'fg'),
+    registerDarkColor(registry, style?.backgroundColor, 'bg')
+  );
   const hStyle: CSSProperties = {
     color: style?.color ?? undefined,
     backgroundColor: style?.backgroundColor ?? undefined,
@@ -46,11 +62,23 @@ export function Heading({ props, style }: HeadingProps) {
   };
   switch (level) {
     case 'h1':
-      return <h1 style={hStyle}>{text}</h1>;
+      return (
+        <h1 className={darkClass} style={hStyle}>
+          {text}
+        </h1>
+      );
     case 'h2':
-      return <h2 style={hStyle}>{text}</h2>;
+      return (
+        <h2 className={darkClass} style={hStyle}>
+          {text}
+        </h2>
+      );
     case 'h3':
-      return <h3 style={hStyle}>{text}</h3>;
+      return (
+        <h3 className={darkClass} style={hStyle}>
+          {text}
+        </h3>
+      );
   }
 }
 

@@ -1,6 +1,7 @@
-import { sanitizeEmailHtml } from '@usewaypoint/block-kit';
 import { marked, Renderer } from 'marked';
 import React, { CSSProperties, useMemo } from 'react';
+
+import { sanitizeEmailHtml } from '@usewaypoint/block-kit';
 
 // Item 17: the markdown path now shares the single audited allow-list in
 // `block-kit` (`sanitizeEmailHtml`) instead of carrying its own copy.
@@ -41,6 +42,9 @@ function renderMarkdownString(str: string): string {
 type Props = {
   style: CSSProperties;
   markdown: string;
+  // WS-04 (dark mode): optional class hook so the markdown wrapper can carry the
+  // auto-derived dark color overrides, same as the plain-text <p> path.
+  className?: string;
 };
 export default function EmailMarkdown({ markdown, ...props }: Props) {
   const data = useMemo(() => renderMarkdownString(markdown), [markdown]);

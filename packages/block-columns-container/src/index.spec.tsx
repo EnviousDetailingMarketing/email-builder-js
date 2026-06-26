@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { createStyleRegistry, StyleRegistryProvider } from '@usewaypoint/block-kit';
 import { describe, expect, it } from '@jest/globals';
 import { render } from '@testing-library/react';
+import { createStyleRegistry, StyleRegistryProvider } from '@usewaypoint/block-kit';
 
 import { ColumnsContainer } from '.';
 
@@ -126,6 +126,25 @@ describe('ColumnsContainer — per-column mobile stacking (WS-02 item 2)', () =>
     );
     // .ebw-col-fixed contributes no CSS — it keeps its inline width on mobile.
     expect(css).not.toContain('.ebw-col-fixed');
+  });
+
+  // WS-04 (dark mode, Option A): the wrapper background gets an auto-derived dark
+  // override; the stacking classes stay layout-only.
+  it('registers prefers-color-scheme + [data-ogsb] dark overrides for the wrapper background', () => {
+    const { html, css } = renderWithRegistry(
+      <ColumnsContainer style={{ backgroundColor: '#ffffff' }} props={{ columnsCount: 2 }} columns={COLS} />
+    );
+    expect(html).toContain('ebw-d-bg-ffffff');
+    expect(css).toContain('@media (prefers-color-scheme: dark){.ebw-d-bg-ffffff{background-color:');
+    expect(css).toContain('[data-ogsb] .ebw-d-bg-ffffff{background-color:');
+    // The stacking rule still rides along.
+    expect(css).toContain('.ebw-col-stack{display:block!important;');
+  });
+
+  it('adds no dark CSS when the wrapper has no background (no light-mode regression)', () => {
+    const { html, css } = renderWithRegistry(<ColumnsContainer props={{ columnsCount: 2 }} columns={COLS} />);
+    expect(html).not.toContain('ebw-d-');
+    expect(css).not.toContain('prefers-color-scheme');
   });
 
   it('dedups the stacking rule across multiple columns blocks into one copy', () => {

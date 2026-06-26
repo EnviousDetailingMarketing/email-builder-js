@@ -3,6 +3,8 @@ import { z } from 'zod';
 
 import { COLOR_SCHEMA, getPadding, PADDING_SCHEMA, useStyleRegistry } from '@usewaypoint/block-kit';
 
+import { registerDarkColor } from './darkColor';
+
 const FIXED_WIDTHS_SCHEMA = z
   .tuple([z.number().nullish(), z.number().nullish(), z.number().nullish()])
   .optional()
@@ -75,9 +77,12 @@ export function ColumnsContainer({ style, columns, props }: ColumnsContainerProp
     // pushing the cell past 100% and triggering horizontal scroll.
     mobile: 'display:block!important;width:100%!important;box-sizing:border-box!important;',
   });
-  // WS-04 (dark mode) hook: register dark variants for these same column classes
-  // here via registry.addClass(STACK_COLUMN_CLASS, { dark: '…' }) — additive, no
-  // structural change required.
+  // WS-04 (dark mode, Option A): the columns wrapper background is the
+  // color-bearing spot here. Auto-derive a dark variant and apply it by class
+  // (prefers-color-scheme + [data-ogsb] hooks, !important). The per-column stack
+  // classes stay layout-only. When no background is set this is a no-op, so the
+  // light-mode markup/stylesheet are unchanged.
+  const wrapperDarkClass = registerDarkColor(registry, style?.backgroundColor, 'bg');
 
   const wStyle: CSSProperties = {
     backgroundColor: style?.backgroundColor ?? undefined,
@@ -93,7 +98,7 @@ export function ColumnsContainer({ style, columns, props }: ColumnsContainerProp
   };
 
   return (
-    <div style={wStyle}>
+    <div className={wrapperDarkClass} style={wStyle}>
       {/*
         WS-03 (Outlook/MSO): the fluid width:100% table below stays the non-Outlook
         driver. Two additions make Outlook (Word engine) lay the columns out

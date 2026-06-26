@@ -172,6 +172,37 @@ describe('renderToStaticMarkup', () => {
     expect(result).toContain('max-width:600px');
   });
 
+  // WS-04 (dark mode, Option A): the shell registers prefers-color-scheme + the
+  // Outlook.com [data-ogsc]/[data-ogsb] hooks for the page background/text and
+  // the inner canvas, derived from the document's own (or default) colors.
+  it('injects shell dark-mode overrides + Outlook.com hooks without dropping WS-02/03/08', () => {
+    const result = renderToStaticMarkup(MIXED_STACK_DOC, { rootBlockId: 'root' });
+    const body = result.slice(result.indexOf('<body id="body">'));
+
+    // prefers-color-scheme dark overrides on the stable shell classes.
+    expect(result).toContain('@media (prefers-color-scheme: dark){.ebw-email-body{background-color:');
+    expect(result).toContain('@media (prefers-color-scheme: dark){.ebw-email-canvas{background-color:');
+    // Inline styles win specificity → the dark overrides are !important.
+    expect(result).toContain('color:#d9d9d9!important;');
+    // Outlook.com / Windows dark hooks (media queries are stripped there).
+    expect(result).toContain('[data-ogsc] .ebw-email-body{color:');
+    expect(result).toContain('[data-ogsb] .ebw-email-body{background-color:');
+    expect(result).toContain('[data-ogsb] .ebw-email-canvas{background-color:');
+    // The canvas table carries the stable dark hook class.
+    expect(body).toContain('class="ebw-email-canvas"');
+
+    // Regression guard: WS-02 responsive media block survives.
+    expect(result).toContain('@media (max-width:600px){.ebw-email-body{padding:16px 0!important;}}');
+    expect(result).toContain(
+      '@media (max-width:600px){.ebw-col-stack{display:block!important;width:100%!important;box-sizing:border-box!important;}}'
+    );
+    // Regression guard: WS-03 MSO ghost + reset CSS survive.
+    expect(body).toContain('<!--[if mso]><table role="presentation" align="center" width="600"');
+    expect(result).toContain('a[x-apple-data-detectors]');
+    // Regression guard: WS-08 role="presentation" survives.
+    expect(body).toContain('role="presentation"');
+  });
+
   it('keeps the head <style> deterministic across renders (snapshot)', () => {
     const result = renderToStaticMarkup(MIXED_STACK_DOC, { rootBlockId: 'root' });
     // The main reset+registry <style> is the *last* one — MSO_HEAD emits its own

@@ -16,6 +16,12 @@ type TValue = {
   selectedSidebarTab: 'block-configuration' | 'styles';
   selectedMainTab: 'editor' | 'preview' | 'json' | 'html';
   selectedScreenSize: 'desktop' | 'mobile';
+  /**
+   * WS-04: light/dark preview toggle. A pure VIEW preference (like
+   * `selectedScreenSize`) — set with a plain `setState`, never routed through
+   * `commitDocument`, so toggling preview does NOT create undo/redo history.
+   */
+  selectedColorScheme: 'light' | 'dark';
 
   inspectorDrawerOpen: boolean;
   samplesDrawerOpen: boolean;
@@ -37,6 +43,7 @@ export const editorStateStore = create<TValue>(() => ({
   selectedSidebarTab: 'styles',
   selectedMainTab: 'editor',
   selectedScreenSize: 'desktop',
+  selectedColorScheme: 'light',
 
   inspectorDrawerOpen: true,
   samplesDrawerOpen: true,
@@ -217,4 +224,14 @@ export function toggleSamplesDrawerOpen() {
 
 export function setSelectedScreenSize(selectedScreenSize: TValue['selectedScreenSize']) {
   return editorStateStore.setState({ selectedScreenSize });
+}
+
+export function useSelectedColorScheme() {
+  return editorStateStore((s) => s.selectedColorScheme);
+}
+
+// WS-04: view-only preference — plain setState, intentionally NOT through
+// commitDocument, so it leaves past/future (undo/redo) untouched.
+export function setSelectedColorScheme(selectedColorScheme: TValue['selectedColorScheme']) {
+  return editorStateStore.setState({ selectedColorScheme });
 }

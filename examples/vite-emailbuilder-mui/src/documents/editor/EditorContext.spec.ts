@@ -1,5 +1,12 @@
 import { TEditorConfiguration } from './core';
-import { editorStateStore, redo, resetDocument, setDocument, undo } from './EditorContext';
+import {
+  editorStateStore,
+  redo,
+  resetDocument,
+  setDocument,
+  setSelectedColorScheme,
+  undo,
+} from './EditorContext';
 
 // Minimal fake documents — the history layer is schema-agnostic.
 function makeDoc(label: string): TEditorConfiguration {
@@ -51,6 +58,22 @@ describe('EditorContext history', () => {
     resetDocument(makeDoc('C')); // branching commit
     expect(state().future).toHaveLength(0);
     expect((state().document.root.data as any).backdropColor).toBe('C');
+  });
+
+  // WS-04: the light/dark preview toggle is a view preference, not a document
+  // mutation — it must never push onto the undo/redo stacks (mirrors screen size).
+  it('setSelectedColorScheme does not touch the undo/redo history', () => {
+    resetDocument(makeDoc('A'));
+    editorStateStore.setState({ past: [], future: [] });
+    const docBefore = state().document;
+    setSelectedColorScheme('dark');
+    expect(state().selectedColorScheme).toBe('dark');
+    expect(state().past).toHaveLength(0);
+    expect(state().future).toHaveLength(0);
+    expect(state().document).toBe(docBefore);
+    setSelectedColorScheme('light');
+    expect(state().selectedColorScheme).toBe('light');
+    expect(state().past).toHaveLength(0);
   });
 
   it('undo / redo are no-ops on empty stacks', () => {

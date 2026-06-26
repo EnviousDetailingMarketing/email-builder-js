@@ -1,7 +1,16 @@
 import React, { CSSProperties } from 'react';
 import { z } from 'zod';
 
-import { COLOR_SCHEMA, FONT_FAMILY_SCHEMA, getFontFamily, getPadding, PADDING_SCHEMA } from '@usewaypoint/block-kit';
+import {
+  COLOR_SCHEMA,
+  FONT_FAMILY_SCHEMA,
+  getFontFamily,
+  getPadding,
+  PADDING_SCHEMA,
+  useStyleRegistry,
+} from '@usewaypoint/block-kit';
+
+import { joinClasses, registerDarkColor } from './darkColor';
 
 export const ButtonPropsSchema = z.object({
   style: z
@@ -71,6 +80,7 @@ export const ButtonPropsDefaults = {
 } as const;
 
 export function Button({ style, props }: ButtonProps) {
+  const registry = useStyleRegistry();
   const text = props?.text ?? ButtonPropsDefaults.text;
   const url = props?.url ?? ButtonPropsDefaults.url;
   const fullWidth = props?.fullWidth ?? ButtonPropsDefaults.fullWidth;
@@ -83,6 +93,15 @@ export function Button({ style, props }: ButtonProps) {
   const fontSize = style?.fontSize ?? 16;
   const fontFamily = getFontFamily(style?.fontFamily);
   const fontWeight = style?.fontWeight ?? 'bold';
+  // WS-04 (dark mode, Option A): auto-derived dark overrides for the color-bearing
+  // spots — the wrapper background plus the link's text + background — registered
+  // via the Style Registry and applied by class. A light label (e.g. the default
+  // white text) is kept; a light button/wrapper background is darkened.
+  const wrapperDarkClass = registerDarkColor(registry, style?.backgroundColor, 'bg');
+  const linkDarkClass = joinClasses(
+    registerDarkColor(registry, buttonTextColor, 'fg'),
+    registerDarkColor(registry, buttonBackgroundColor, 'bg')
+  );
   const wrapperStyle: CSSProperties = {
     backgroundColor: style?.backgroundColor ?? undefined,
     textAlign: style?.textAlign ?? undefined,
@@ -131,7 +150,7 @@ export function Button({ style, props }: ButtonProps) {
     : null;
 
   const link = (
-    <a href={url} style={linkStyle} target="_blank">
+    <a className={linkDarkClass} href={url} style={linkStyle} target="_blank">
       <span
         dangerouslySetInnerHTML={{
           __html: `<!--[if mso]><i style="letter-spacing: ${padding[1]}px;mso-font-width:-100%;mso-text-raise:${textRaise}" hidden>&nbsp;</i><![endif]-->`,
@@ -147,7 +166,7 @@ export function Button({ style, props }: ButtonProps) {
   );
 
   return (
-    <div style={wrapperStyle}>
+    <div className={wrapperDarkClass} style={wrapperStyle}>
       {vmlButton && <span dangerouslySetInnerHTML={{ __html: vmlButton }} />}
       {useVml ? (
         // Hide the live <a> from Outlook; the VML roundrect renders there instead.
