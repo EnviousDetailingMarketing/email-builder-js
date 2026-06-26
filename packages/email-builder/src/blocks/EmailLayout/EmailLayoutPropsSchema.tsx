@@ -1,25 +1,6 @@
 import { z } from 'zod';
 
-const COLOR_SCHEMA = z
-  .string()
-  .regex(/^#[0-9a-fA-F]{6}$/)
-  .nullable()
-  .optional();
-
-const FONT_FAMILY_SCHEMA = z
-  .enum([
-    'MODERN_SANS',
-    'BOOK_SANS',
-    'ORGANIC_SANS',
-    'GEOMETRIC_SANS',
-    'HEAVY_SANS',
-    'ROUNDED_SANS',
-    'MODERN_SERIF',
-    'BOOK_SERIF',
-    'MONOSPACE',
-  ])
-  .nullable()
-  .optional();
+import { COLOR_SCHEMA, FONT_FAMILY_SCHEMA } from '@usewaypoint/block-kit';
 
 export const EmailLayoutPropsSchema = z.object({
   backdropColor: COLOR_SCHEMA,

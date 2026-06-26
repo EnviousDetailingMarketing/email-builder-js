@@ -26,6 +26,7 @@
     "zod": "^1 || ^2 || ^3"
   },
   "dependencies": {
+    "@usewaypoint/block-kit": "^0.0.1",
     "@usewaypoint/block-avatar": "^0.0.3",
     "@usewaypoint/block-button": "^0.0.3",
     "@usewaypoint/block-columns-container": "^0.0.3",
