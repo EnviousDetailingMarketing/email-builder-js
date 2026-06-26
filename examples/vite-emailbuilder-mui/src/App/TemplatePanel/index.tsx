@@ -18,8 +18,10 @@ import DownloadJson from './DownloadJson';
 import HtmlPanel from './HtmlPanel';
 import ImportJson from './ImportJson';
 import JsonPanel from './JsonPanel';
+import CanvasErrorBoundary from './CanvasErrorBoundary';
 import MainTabsGroup from './MainTabsGroup';
 import ShareButton from './ShareButton';
+import UndoRedoButtons from './UndoRedoButtons';
 
 export default function TemplatePanel() {
   const document = useDocument();
@@ -91,8 +93,9 @@ export default function TemplatePanel() {
       >
         <ToggleSamplesPanelButton />
         <Stack px={2} direction="row" gap={2} width="100%" justifyContent="space-between" alignItems="center">
-          <Stack direction="row" spacing={2}>
+          <Stack direction="row" spacing={2} alignItems="center">
             <MainTabsGroup />
+            <UndoRedoButtons />
           </Stack>
           <Stack direction="row" spacing={2}>
             <DownloadJson />
@@ -114,7 +117,10 @@ export default function TemplatePanel() {
         </Stack>
         <ToggleInspectorPanelButton />
       </Stack>
-      <Box sx={{ height: 'calc(100vh - 49px)', overflow: 'auto', minWidth: 370 }}>{renderMainPanel()}</Box>
+      <Box sx={{ height: 'calc(100vh - 49px)', overflow: 'auto', minWidth: 370 }}>
+        {/* Keyed by tab so an errored canvas doesn't block switching to JSON to fix it. */}
+        <CanvasErrorBoundary key={selectedMainTab}>{renderMainPanel()}</CanvasErrorBoundary>
+      </Box>
     </>
   );
 }
