@@ -20,6 +20,9 @@
   },
   "author": "carlos@usewaypoint.com",
   "license": "MIT",
+  "dependencies": {
+    "@usewaypoint/block-kit": "^0.0.1"
+  },
   "peerDependencies": {
     "react": "^16 || ^17 || ^18",
     "zod": "^1 || ^2 || ^3"

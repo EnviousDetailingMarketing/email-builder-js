@@ -1,28 +1,13 @@
 import React, { CSSProperties } from 'react';
 import { z } from 'zod';
 
-const PADDING_SCHEMA = z
-  .object({
-    top: z.number(),
-    bottom: z.number(),
-    right: z.number(),
-    left: z.number(),
-  })
-  .optional()
-  .nullable();
-
-const getPadding = (padding: z.infer<typeof PADDING_SCHEMA>) =>
-  padding ? `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px` : undefined;
+import { COLOR_SCHEMA, getPadding, PADDING_SCHEMA } from '@usewaypoint/block-kit';
 
 export const ImagePropsSchema = z.object({
   style: z
     .object({
       padding: PADDING_SCHEMA,
-      backgroundColor: z
-        .string()
-        .regex(/^#[0-9a-fA-F]{6}$/)
-        .optional()
-        .nullable(),
+      backgroundColor: COLOR_SCHEMA,
       textAlign: z.enum(['center', 'left', 'right']).optional().nullable(),
     })
     .optional()

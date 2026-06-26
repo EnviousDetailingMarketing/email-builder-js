@@ -1,24 +1,7 @@
 import React, { CSSProperties } from 'react';
 import { z } from 'zod';
 
-const COLOR_SCHEMA = z
-  .string()
-  .regex(/^#[0-9a-fA-F]{6}$/)
-  .nullable()
-  .optional();
-
-const PADDING_SCHEMA = z
-  .object({
-    top: z.number(),
-    bottom: z.number(),
-    right: z.number(),
-    left: z.number(),
-  })
-  .optional()
-  .nullable();
-
-const getPadding = (padding: z.infer<typeof PADDING_SCHEMA>) =>
-  padding ? `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px` : undefined;
+import { COLOR_SCHEMA, getPadding, PADDING_SCHEMA } from '@usewaypoint/block-kit';
 
 export const DividerPropsSchema = z.object({
   style: z
