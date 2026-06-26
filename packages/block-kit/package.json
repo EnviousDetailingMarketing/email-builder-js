@@ -1,0 +1,26 @@
+{
+  "name": "@usewaypoint/block-kit",
+  "version": "0.0.1",
+  "description": "Shared schemas and helpers for @usewaypoint/block-* packages",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup ./src/index.ts --outDir dist --format cjs,esm --dts"
+  },
+  "author": "carlos@usewaypoint.com",
+  "license": "MIT",
+  "peerDependencies": {
+    "zod": "^1 || ^2 || ^3"
+  }
+}
