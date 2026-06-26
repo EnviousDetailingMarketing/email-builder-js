@@ -11,13 +11,13 @@ Live status for all workstreams. Update the status column and tick the master ch
 | WS    | Team          | Items                            | Phase | Status | Owner/Agent | Notes                            |
 | ----- | ------------- | -------------------------------- | ----- | ------ | ----------- | -------------------------------- |
 | WS-01 | Foundation    | 18, 19, head+registry, base a11y | 0     | 🟨     | Claude      | 18 + 19 ✅; registry + head ✅ FROZEN; base a11y ✅ |
-| WS-02 | Responsive    | 2, 3                             | 1     | ⬜     | —           | unblocked — WS-01 registry ready |
-| WS-03 | Client-Compat | 4                                | 1     | ⬜     | —           | unblocked — MSO head slot ready  |
+| WS-02 | Responsive    | 2, 3                             | 1     | ⬜     | —           | unblocked — WS-01 registry ready; rebase on batch-1 (cols/img changed) |
+| WS-03 | Client-Compat | 4                                | 1     | ⬜     | —           | unblocked — MSO head slot ready; rebase on batch-1 (cols/img changed)  |
 | WS-04 | Dark-Mode     | 5                                | 1     | ⬜     | —           | unblocked — WS-01 registry ready |
-| WS-05 | Plain-Text    | 6                                | 1     | ⬜     | —           | independent — can start now      |
-| WS-06 | Editor-UX     | 8, 11, 12, 21                    | 1/2   | ⬜     | —           | independent — start w/ 12 then 8 |
+| WS-05 | Plain-Text    | 6                                | 1     | ✅     | Claude      | renderToText + renderEmail ✅; CR-1 stopgap stripper |
+| WS-06 | Editor-UX     | 8, 11, 12, 21                    | 1/2   | 🟨     | Claude      | 12 ✅ 8 ✅ + error-boundary(19) ✅; 11 & 21 deferred (Phase 2); CR-2/CR-3 inbox |
 | WS-07 | Block-Styling | 15                               | 1     | ⬜     | —           | needs WS-01 block-kit            |
-| WS-08 | Security-A11y | 17, 20                           | 1     | ⬜     | —           | independent — can start now      |
+| WS-08 | Security-A11y | 17, 20                           | 1     | ✅     | Claude      | 17 ✅ (shared sanitizeEmailHtml) 20 ✅; inspector controls CR'd to WS-06 |
 
 ---
 
@@ -29,13 +29,13 @@ Live status for all workstreams. Update the status column and tick the master ch
 - [ ] **3** — Full responsive support (WS-02 + WS-01 head)
 - [ ] **4** — Outlook & client compatibility (WS-03)
 - [ ] **5** — Dark mode preview + output (WS-04)
-- [ ] **6** — Plain-text fallback (WS-05)
+- [x] **6** — Plain-text fallback (WS-05)
 
 ### Tier 2
 
-- [ ] **8** — Undo / redo (WS-06)
+- [x] **8** — Undo / redo (WS-06)
 - [ ] **11** — Inline canvas editing (WS-06, Phase 2)
-- [ ] **12** — Block-ID collision fix (WS-06, do first)
+- [x] **12** — Block-ID collision fix (WS-06, do first)
 
 ### Tier 3
 
@@ -43,11 +43,11 @@ Live status for all workstreams. Update the status column and tick the master ch
 
 ### Tier 4
 
-- [ ] **17** — Secure raw-HTML handling (WS-08)
+- [x] **17** — Secure raw-HTML handling (WS-08)
 - [x] **18** — Shared `block-kit`, remove duplication (WS-01)
-- [x] **19** — Renderer null-guard / graceful errors (WS-01)
-- [ ] **20** — Accessibility (WS-08 + WS-01 head)
-- [ ] **21** — Performance smells (WS-06, opportunistic)
+- [x] **19** — Renderer null-guard / graceful errors (WS-01); canvas error boundary added (WS-06)
+- [x] **20** — Accessibility (WS-08 + WS-01 head)
+- [ ] **21** — Performance smells (WS-06, opportunistic) — deferred, untouched
 
 ### Infrastructure (enabling)
 
@@ -65,4 +65,7 @@ When a team needs to edit a file owned by another team (per the ownership matrix
 
 | Date | Requesting WS | File | Owner WS | Reason | Resolved? |
 | ---- | ------------- | ---- | -------- | ------ | --------- |
-| —    | —             | —    | —        | —      | —         |
+| 2026-06-26 | WS-05 | `email-builder/src/renderers/renderToText.ts` | WS-08 (`block-kit`) | **CR-1:** replace WS-05's stopgap local HTML tag-stripper with the shared `htmlToText` now exported from `@usewaypoint/block-kit/sanitize`. Low-risk follow-up. | ⬜ open |
+| 2026-06-26 | WS-05 | `examples/.../App/TemplatePanel/` | WS-06 | **CR-2:** wire `renderToText` into a new editor "Text" tab beside HTML/JSON. | ⬜ open |
+| 2026-06-26 | WS-08 | `examples/.../InspectorDrawer/.../ImageSidebarPanel.tsx`, Avatar panel | WS-06 | **CR-3:** add inspector control for the new `decorative` boolean (Image/Avatar) + warn when an image has no `alt` and isn't decorative. Schema field + render behavior already shipped in the blocks. | ⬜ open |
+| 2026-06-26 | WS-08 | `block-columns-container`, `block-image`, `block-avatar` | WS-02 / WS-03 | **Heads-up (not a CR):** these files changed in batch 1 (`role="presentation"`, optional `decorative` field). WS-02 (stacking) / WS-03 (MSO) must rebase on batch 1 before editing them. | ⬜ ack pending |
