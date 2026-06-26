@@ -1,5 +1,7 @@
 import { TEditorBlock, TEditorConfiguration } from '../../editor/core';
 
+import generateId from './generateId';
+
 type TResult = {
   document: TEditorConfiguration;
   blockId: string;
@@ -8,7 +10,7 @@ type TResult = {
 function cloneChildrenIds(document: TEditorConfiguration, blockIds: string[]): string[] {
   return blockIds.map((blockId) => {
     const newBlock = cloneBlock(document, blockId);
-    const newBlockId = `block-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const newBlockId = generateId();
     document[newBlockId] = newBlock;
     return newBlockId;
   });
@@ -45,7 +47,7 @@ function cloneBlock(document: TEditorConfiguration, blockId: string): TEditorBlo
 
 export default function cloneDocumentBlock(originalDocument: TEditorConfiguration, originalBlockId: string): TResult {
   const document = { ...originalDocument };
-  const blockId = `block-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  const blockId = generateId();
   document[blockId] = cloneBlock(document, originalBlockId);
   return {
     document,

@@ -3,6 +3,8 @@ import React, { Fragment } from 'react';
 import { TEditorBlock } from '../../../editor/core';
 import EditorBlock from '../../../editor/EditorBlock';
 
+import generateId from '../generateId';
+
 import AddBlockButton from './AddBlockMenu';
 
 export type EditorChildrenChange = {
@@ -10,10 +12,6 @@ export type EditorChildrenChange = {
   block: TEditorBlock;
   childrenIds: string[];
 };
-
-function generateId() {
-  return `block-${Date.now()}`;
-}
 
 export type EditorChildrenIdsProps = {
   childrenIds: string[] | null | undefined;
