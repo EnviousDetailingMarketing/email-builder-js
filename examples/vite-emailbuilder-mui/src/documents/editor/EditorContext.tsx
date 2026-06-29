@@ -14,7 +14,7 @@ type TValue = {
 
   selectedBlockId: string | null;
   selectedSidebarTab: 'block-configuration' | 'styles';
-  selectedMainTab: 'editor' | 'preview' | 'json' | 'html';
+  selectedMainTab: 'editor' | 'preview' | 'html' | 'text' | 'json';
   selectedScreenSize: 'desktop' | 'mobile';
   /**
    * WS-04: light/dark preview toggle. A pure VIEW preference (like

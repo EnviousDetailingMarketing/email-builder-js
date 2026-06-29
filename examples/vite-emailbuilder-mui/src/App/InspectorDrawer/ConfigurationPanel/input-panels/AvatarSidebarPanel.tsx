@@ -6,6 +6,7 @@ import { ToggleButton } from '@mui/material';
 import { AvatarProps, AvatarPropsDefaults, AvatarPropsSchema } from '@usewaypoint/block-avatar';
 
 import BaseSidebarPanel from './helpers/BaseSidebarPanel';
+import BooleanInput from './helpers/inputs/BooleanInput';
 import RadioGroupInput from './helpers/inputs/RadioGroupInput';
 import SliderInput from './helpers/inputs/SliderInput';
 import TextInput from './helpers/inputs/TextInput';
@@ -31,6 +32,7 @@ export default function AvatarSidebarPanel({ data, setData }: AvatarSidebarPanel
   const imageUrl = data.props?.imageUrl ?? AvatarPropsDefaults.imageUrl;
   const alt = data.props?.alt ?? AvatarPropsDefaults.alt;
   const shape = data.props?.shape ?? AvatarPropsDefaults.shape;
+  const decorative = data.props?.decorative ?? false;
 
   return (
     <BaseSidebarPanel title="Avatar block">
@@ -69,6 +71,13 @@ export default function AvatarSidebarPanel({ data, setData }: AvatarSidebarPanel
         defaultValue={alt}
         onChange={(alt) => {
           updateData({ ...data, props: { ...data.props, alt } });
+        }}
+      />
+      <BooleanInput
+        label="Decorative (hide from screen readers)"
+        defaultValue={decorative}
+        onChange={(decorative) => {
+          updateData({ ...data, props: { ...data.props, decorative } });
         }}
       />
 

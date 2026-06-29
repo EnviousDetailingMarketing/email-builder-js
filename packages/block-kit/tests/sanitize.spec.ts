@@ -109,4 +109,26 @@ describe('block-kit/htmlToText', () => {
   it('decodes the basic HTML entities', () => {
     expect(htmlToText('<p>Tom &amp; Jerry &lt;3</p>')).toBe('Tom & Jerry <3');
   });
+
+  it('drops link URLs by default', () => {
+    expect(htmlToText('Read <a href="https://example.com">our docs</a>.')).toBe('Read our docs.');
+  });
+
+  it('preserves link URLs as `text (url)` when asked', () => {
+    expect(htmlToText('Read <a href="https://example.com">our docs</a>.', { preserveLinks: true })).toBe(
+      'Read our docs (https://example.com).'
+    );
+  });
+
+  it('collapses a link to just its url when the text equals the href', () => {
+    expect(htmlToText('<a href="https://example.com">https://example.com</a>', { preserveLinks: true })).toBe(
+      'https://example.com'
+    );
+  });
+
+  it('honors a custom block separator for paragraph spacing', () => {
+    expect(htmlToText('<p>a</p><p>b</p>', { blockSeparator: '\n\n' })).toBe('a\n\nb');
+    // <br>, <li> and <tr> stay single-newline regardless of the block separator.
+    expect(htmlToText('a<br>b', { blockSeparator: '\n\n' })).toBe('a\nb');
+  });
 });

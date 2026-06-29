@@ -6,10 +6,11 @@ import {
   VerticalAlignCenterOutlined,
   VerticalAlignTopOutlined,
 } from '@mui/icons-material';
-import { Stack, ToggleButton } from '@mui/material';
+import { Alert, Stack, ToggleButton } from '@mui/material';
 import { ImageProps, ImagePropsSchema } from '@usewaypoint/block-image';
 
 import BaseSidebarPanel from './helpers/BaseSidebarPanel';
+import BooleanInput from './helpers/inputs/BooleanInput';
 import RadioGroupInput from './helpers/inputs/RadioGroupInput';
 import TextDimensionInput from './helpers/inputs/TextDimensionInput';
 import TextInput from './helpers/inputs/TextInput';
@@ -32,6 +33,9 @@ export default function ImageSidebarPanel({ data, setData }: ImageSidebarPanelPr
     }
   };
 
+  const decorative = data.props?.decorative ?? false;
+  const altIsEmpty = (data.props?.alt ?? '').trim().length === 0;
+
   return (
     <BaseSidebarPanel title="Image block">
       <TextInput
@@ -48,6 +52,16 @@ export default function ImageSidebarPanel({ data, setData }: ImageSidebarPanelPr
         defaultValue={data.props?.alt ?? ''}
         onChange={(alt) => updateData({ ...data, props: { ...data.props, alt } })}
       />
+      <BooleanInput
+        label="Decorative (hide from screen readers)"
+        defaultValue={decorative}
+        onChange={(decorative) => updateData({ ...data, props: { ...data.props, decorative } })}
+      />
+      {!decorative && altIsEmpty && (
+        <Alert severity="warning" sx={{ py: 0 }}>
+          This image has no alt text. Add a description, or mark it decorative if it carries no meaning.
+        </Alert>
+      )}
       <TextInput
         label="Click through URL"
         defaultValue={data.props?.linkHref ?? ''}

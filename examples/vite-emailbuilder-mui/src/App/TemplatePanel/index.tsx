@@ -23,6 +23,7 @@ import ImportJson from './ImportJson';
 import JsonPanel from './JsonPanel';
 import MainTabsGroup from './MainTabsGroup';
 import ShareButton from './ShareButton';
+import TextPanel from './TextPanel';
 import UndoRedoButtons from './UndoRedoButtons';
 
 export default function TemplatePanel() {
@@ -102,6 +103,8 @@ export default function TemplatePanel() {
         );
       case 'html':
         return <HtmlPanel />;
+      case 'text':
+        return <TextPanel />;
       case 'json':
         return <JsonPanel />;
     }

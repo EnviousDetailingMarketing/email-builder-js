@@ -1,3 +1,4 @@
+import { htmlToText as sanitizeHtmlToText } from '@usewaypoint/block-kit';
 import { marked, type Token, type Tokens } from 'marked';
 
 import { TReaderDocument } from '../Reader/core';
@@ -270,48 +271,14 @@ function inlineTokensToText(tokens: Token[]): string {
 // ---------------------------------------------------------------------------
 // HTML -> text
 //
-// TODO(WS-08 integration): replace this minimal local stripper with the shared
-// `htmlToText` helper that WS-08 will expose from `@usewaypoint/block-kit`
-// (block-kit/src/sanitize.ts). Kept intentionally small until that lands.
+// Delegates to the shared, sanitize-first `htmlToText` from
+// `@usewaypoint/block-kit` (CR-1). We opt into link preservation and blank-line
+// paragraph spacing so the plain-text part keeps `text (url)` links and stays
+// readable — the behavior the previous local stripper provided.
 // ---------------------------------------------------------------------------
 
 function htmlToText(html: string): string {
-  let s = html;
-
-  // Drop content that never carries readable text.
-  s = s.replace(/<!--[\s\S]*?-->/g, '');
-  s = s.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, '');
-
-  // Preserve anchors as `text (url)`.
-  s = s.replace(/<a\b[^>]*?href=["']([^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi, (_match, href, inner) => {
-    const text = htmlToText(inner).trim();
-    if (!href) {
-      return text;
-    }
-    return text && text !== href ? `${text} (${href})` : href;
-  });
-
-  // Line breaks and inline-ish boundaries become single newlines.
-  s = s.replace(/<\s*br\s*\/?\s*>/gi, '\n');
-  s = s.replace(/<\/(li|tr)\s*>/gi, '\n');
-  // Paragraph / block-level boundaries become a blank line so prose stays readable.
-  s = s.replace(/<\/(p|div|h[1-6]|table|section|article|header|footer|ul|ol|blockquote|pre)\s*>/gi, '\n\n');
-
-  // Strip every remaining tag.
-  s = s.replace(/<[^>]+>/g, '');
-
-  return decodeEntities(s);
-}
-
-function decodeEntities(text: string): string {
-  return text
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#0*39;/g, '\'')
-    .replace(/&apos;/gi, '\'');
+  return sanitizeHtmlToText(html, { preserveLinks: true, blockSeparator: '\n\n' });
 }
 
 // ---------------------------------------------------------------------------

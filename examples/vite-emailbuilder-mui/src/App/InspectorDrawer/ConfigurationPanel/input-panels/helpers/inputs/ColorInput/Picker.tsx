@@ -1,9 +1,48 @@
 import React, { useState } from 'react';
-import { HexColorInput, HexColorPicker } from 'react-colorful';
+import { HexAlphaColorPicker, HexColorInput } from 'react-colorful';
 
 import { Box, Stack, SxProps } from '@mui/material';
 
 import Swatch from './Swatch';
+
+// react-colorful parses 3/4/6/8-digit hex natively but not `rgba()` or
+// `transparent`. The widened COLOR_SCHEMA accepts those, and a value authored
+// via JSON/CRM may arrive in any of them, so normalize to a hex string the
+// picker can display. Best-effort: unknown/named colors fall back to black.
+function toPickerHex(value: string): string {
+  const v = value.trim();
+  if (v === '') {
+    return '#000000';
+  }
+  if (v.toLowerCase() === 'transparent') {
+    return '#00000000';
+  }
+  if (v.startsWith('#')) {
+    return v;
+  }
+  const rgb = /^rgba?\(([^)]+)\)$/i.exec(v);
+  if (rgb) {
+    const parts = rgb[1].split(/[,\s/]+/).filter(Boolean);
+    if (parts.length >= 3) {
+      const toHex2 = (n: number) => Math.max(0, Math.min(255, n)).toString(16).padStart(2, '0');
+      const channel = (c: string) => {
+        const n = c.endsWith('%') ? Math.round((parseFloat(c) / 100) * 255) : parseInt(c, 10);
+        return Number.isFinite(n) ? n : 0;
+      };
+      const [r, g, b, a] = parts;
+      let alpha = '';
+      if (a !== undefined) {
+        const av = a.endsWith('%') ? parseFloat(a) / 100 : parseFloat(a);
+        const ab = Math.round((Number.isFinite(av) ? av : 1) * 255);
+        if (ab < 255) {
+          alpha = toHex2(ab);
+        }
+      }
+      return `#${toHex2(channel(r))}${toHex2(channel(g))}${toHex2(channel(b))}${alpha}`;
+    }
+  }
+  return '#000000';
+}
 
 const DEFAULT_PRESET_COLORS = [
   '#E11D48',
@@ -73,27 +112,26 @@ type Props = {
   value: string;
   onChange: (v: string) => void;
 };
-// TODO(WS-07): the block-kit COLOR_SCHEMA now accepts alpha (rgba()/#RRGGBBAA),
-// but this picker is hex-only (react-colorful HexColorPicker/HexColorInput) and
-// gates onChange on /^#[0-9a-fA-F]{6}$/. Wiring an alpha-capable picker
-// (RgbaColorPicker + rgba<->hex conversion, plus widening the validation gate)
-// is deferred: doing it carelessly would silently drop alpha edits or break the
-// editor build. Alpha values authored via JSON/CRM still render correctly today.
+// Alpha-capable picker (CR-6): `HexAlphaColorPicker` adds an opacity slider and
+// emits `#RRGGBB` when fully opaque or `#RRGGBBAA` when translucent — both
+// accepted by the widened COLOR_SCHEMA. The text field takes 8-digit hex too.
+// Outlook (Word engine) ignores CSS alpha, so translucent colors fall back to
+// opaque there; that caveat is documented on COLOR_SCHEMA in block-kit.
 export default function Picker({ value, onChange }: Props) {
-  const [internalValue, setInternalValue] = useState(value);
+  const [internalValue, setInternalValue] = useState(() => toPickerHex(value));
   const handleChange = (v: string) => {
     setInternalValue(v);
-    if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+    if (/^#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(v)) {
       onChange(v);
     }
   };
 
   return (
     <Stack spacing={1} sx={SX}>
-      <HexColorPicker color={value} onChange={handleChange} />
+      <HexAlphaColorPicker color={toPickerHex(value)} onChange={handleChange} />
       <Swatch paletteColors={DEFAULT_PRESET_COLORS} value={value} onChange={handleChange} />
       <Box pt={1}>
-        <HexColorInput prefixed color={internalValue} onChange={handleChange} />
+        <HexColorInput prefixed alpha color={internalValue} onChange={handleChange} />
       </Box>
     </Stack>
   );

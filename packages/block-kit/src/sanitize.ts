@@ -127,9 +127,30 @@ export function sanitizeEmailHtml(html: string | null | undefined): string {
   return insane(html, SANITIZE_OPTIONS);
 }
 
-const BLOCK_LEVEL_CLOSE_TAGS = /<\/\s*(p|div|h[1-6]|li|tr|blockquote|pre|table|ul|ol|section|article)\s*>/gi;
+// `<br>`, `</li>` and `</tr>` always collapse to a single newline (they are
+// line breaks inside a block, not block boundaries). The remaining block-level
+// closers are separated by `blockSeparator` so callers that want prose spacing
+// (the plain-text email part) can request a blank line between paragraphs.
+const LINE_BREAK_CLOSE_TAGS = /<\/\s*(li|tr)\s*>/gi;
+const BLOCK_LEVEL_CLOSE_TAGS = /<\/\s*(p|div|h[1-6]|blockquote|pre|table|ul|ol|section|article)\s*>/gi;
 const BR_TAGS = /<\s*br\s*\/?\s*>/gi;
+const ANCHOR_TAGS = /<a\b[^>]*?href=["']([^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
 const ANY_TAG = /<[^>]+>/g;
+
+export type THtmlToTextOptions = {
+  /**
+   * Keep `<a href>` targets in the output as `text (url)` instead of dropping
+   * the URL. Off by default (block-text only needs the visible text); the
+   * plain-text email part (WS-05) turns it on so links survive.
+   */
+  preserveLinks?: boolean;
+  /**
+   * String inserted at block-level boundaries (`</p>`, `</div>`, headings, …).
+   * Defaults to a single newline; the plain-text email part passes `'\n\n'` so
+   * paragraphs stay readable.
+   */
+  blockSeparator?: string;
+};
 
 /**
  * Convert an HTML string to plain text. Shared with WS-05 (plain-text
@@ -138,12 +159,28 @@ const ANY_TAG = /<[^>]+>/g;
  * the remaining markup, turning block-level boundaries and `<br>` into
  * newlines and decoding the basic HTML entities.
  */
-export function htmlToText(html: string | null | undefined): string {
+export function htmlToText(html: string | null | undefined, options: THtmlToTextOptions = {}): string {
   if (!html) {
     return '';
   }
-  const sanitized = sanitizeEmailHtml(html);
-  const withBreaks = sanitized.replace(BR_TAGS, '\n').replace(BLOCK_LEVEL_CLOSE_TAGS, '\n');
+  const { preserveLinks = false, blockSeparator = '\n' } = options;
+  let working = sanitizeEmailHtml(html);
+  if (preserveLinks) {
+    // Rewrite anchors to `text (url)` before the surrounding markup is stripped.
+    // The inner content may still carry inline tags (e.g. `<strong>`), so strip
+    // them out of the captured label.
+    working = working.replace(ANCHOR_TAGS, (_match, href: string, inner: string) => {
+      const text = inner.replace(ANY_TAG, '').trim();
+      if (!href) {
+        return text;
+      }
+      return text && text !== href ? `${text} (${href})` : href;
+    });
+  }
+  const withBreaks = working
+    .replace(BR_TAGS, '\n')
+    .replace(LINE_BREAK_CLOSE_TAGS, '\n')
+    .replace(BLOCK_LEVEL_CLOSE_TAGS, blockSeparator);
   const withoutTags = withBreaks.replace(ANY_TAG, '');
   const decoded = withoutTags
     .replace(/&nbsp;/gi, ' ')
