@@ -22,7 +22,7 @@
     "no-extra-boolean-cast": ["error", { "enforceForLogicalOperands": false }],
     "no-implicit-coercion": "error",
     "no-duplicate-imports": "error",
-    "quotes": ["error", "single", { "avoidEscape": false, "allowTemplateLiterals": true }],
+    "quotes": ["error", "single", { "avoidEscape": true, "allowTemplateLiterals": true }],
     "semi": ["error", "always"],
     "simple-import-sort/imports": [
       "error",

@@ -99,13 +99,7 @@ const NOOP_REGISTRY: StyleRegistry = {
 
 const StyleRegistryContext = createContext<StyleRegistry>(NOOP_REGISTRY);
 
-export function StyleRegistryProvider({
-  registry,
-  children,
-}: {
-  registry: StyleRegistry;
-  children: React.ReactNode;
-}) {
+export function StyleRegistryProvider({ registry, children }: { registry: StyleRegistry; children: React.ReactNode }) {
   return <StyleRegistryContext.Provider value={registry}>{children}</StyleRegistryContext.Provider>;
 }
 

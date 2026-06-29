@@ -1,16 +1,11 @@
 import { TEditorConfiguration } from './core';
-import {
-  editorStateStore,
-  redo,
-  resetDocument,
-  setDocument,
-  setSelectedColorScheme,
-  undo,
-} from './EditorContext';
+import { editorStateStore, redo, resetDocument, setDocument, setSelectedColorScheme, undo } from './EditorContext';
 
 // Minimal fake documents — the history layer is schema-agnostic.
 function makeDoc(label: string): TEditorConfiguration {
-  return { root: { type: 'EmailLayout', data: { childrenIds: [], backdropColor: label } } } as unknown as TEditorConfiguration;
+  return {
+    root: { type: 'EmailLayout', data: { childrenIds: [], backdropColor: label } },
+  } as unknown as TEditorConfiguration;
 }
 
 const state = () => editorStateStore.getState();

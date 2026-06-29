@@ -2,7 +2,6 @@ import React, { Fragment } from 'react';
 
 import { TEditorBlock } from '../../../editor/core';
 import EditorBlock from '../../../editor/EditorBlock';
-
 import generateId from '../generateId';
 
 import AddBlockButton from './AddBlockMenu';

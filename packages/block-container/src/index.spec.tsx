@@ -46,9 +46,7 @@ describe('block-container', () => {
     });
 
     it('renders no border when borderStyle is none', () => {
-      const { container } = render(
-        <Container style={{ borderColor: '#cccccc', borderStyle: 'none' }} />
-      );
+      const { container } = render(<Container style={{ borderColor: '#cccccc', borderStyle: 'none' }} />);
       const style = container.querySelector('div')?.getAttribute('style') ?? '';
       expect(style).not.toContain('border');
     });

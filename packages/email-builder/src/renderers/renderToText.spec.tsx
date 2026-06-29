@@ -87,9 +87,9 @@ describe('renderToText — per block', () => {
   });
 
   it('Image with alt only renders alt', () => {
-    expect(
-      renderLeaf({ type: 'Image', data: { props: { url: 'https://cdn/x.png', alt: 'A photo' } } } as any)
-    ).toBe('A photo');
+    expect(renderLeaf({ type: 'Image', data: { props: { url: 'https://cdn/x.png', alt: 'A photo' } } } as any)).toBe(
+      'A photo'
+    );
   });
 
   it('Image with link but no alt renders [image] (url)', () => {
@@ -106,9 +106,9 @@ describe('renderToText — per block', () => {
   });
 
   it('Avatar renders its alt text', () => {
-    expect(
-      renderLeaf({ type: 'Avatar', data: { props: { imageUrl: 'https://cdn/a.png', alt: 'Jane' } } } as any)
-    ).toBe('Jane');
+    expect(renderLeaf({ type: 'Avatar', data: { props: { imageUrl: 'https://cdn/a.png', alt: 'Jane' } } } as any)).toBe(
+      'Jane'
+    );
   });
 
   it('Divider renders a rule', () => {
@@ -124,7 +124,8 @@ describe('renderToText — per block', () => {
       type: 'Html',
       data: {
         props: {
-          contents: '<p>Hello &amp; welcome. <a href="https://example.com">Visit us</a>.</p><p>Second &lt;para&gt;.</p>',
+          contents:
+            '<p>Hello &amp; welcome. <a href="https://example.com">Visit us</a>.</p><p>Second &lt;para&gt;.</p>',
         },
       },
     } as any);

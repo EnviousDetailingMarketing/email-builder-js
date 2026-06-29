@@ -68,13 +68,19 @@ type CommitOptions = {
  * The single history-aware mutation path. Pushes the previous document onto the
  * undo stack (unless coalescing), clears the redo branch, and caps depth.
  */
-function commitDocument(nextDocument: TEditorConfiguration, { coalesceKey = null, resetSelection = false }: CommitOptions = {}) {
+function commitDocument(
+  nextDocument: TEditorConfiguration,
+  { coalesceKey = null, resetSelection = false }: CommitOptions = {}
+) {
   const state = editorStateStore.getState();
   const previousDocument = state.document;
   const now = Date.now();
 
   const canCoalesce =
-    coalesceKey !== null && coalesceKey === lastCoalesceKey && now - lastCommitAt < COALESCE_WINDOW_MS && state.past.length > 0;
+    coalesceKey !== null &&
+    coalesceKey === lastCoalesceKey &&
+    now - lastCommitAt < COALESCE_WINDOW_MS &&
+    state.past.length > 0;
 
   let past = state.past;
   if (!canCoalesce) {

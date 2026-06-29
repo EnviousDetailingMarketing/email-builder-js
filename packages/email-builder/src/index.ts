@@ -25,10 +25,7 @@ export {
  * so callers (e.g. a CRM) can drop them straight into a multipart message.
  * No transport — just the two payloads.
  */
-export function renderEmail(
-  document: TReaderDocument,
-  options: TRenderToTextOptions
-): { html: string; text: string } {
+export function renderEmail(document: TReaderDocument, options: TRenderToTextOptions): { html: string; text: string } {
   return {
     html: renderToStaticMarkupImpl(document, { rootBlockId: options.rootBlockId }),
     text: renderToTextImpl(document, options),

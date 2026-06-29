@@ -20,6 +20,7 @@
 **Problem:** `COLOR_SCHEMA`, `PADDING_SCHEMA`, `FONT_FAMILY_SCHEMA`, `getPadding`, `getFontFamily` are duplicated verbatim across ~8 `block-*` packages (e.g. `block-button/src/index.tsx:4-60` ≡ `block-text/src/index.tsx:6-62` ≡ `block-heading/src/index.tsx:4-60`).
 
 **Tasks**
+
 - [ ] Create `packages/block-kit` (`@usewaypoint/block-kit`) exporting:
   - `COLOR_SCHEMA`, `PADDING_SCHEMA`, `FONT_FAMILY_SCHEMA`
   - `getPadding(padding)`, `getFontFamily(name)`
@@ -35,9 +36,10 @@
 
 ## Item 19 — Renderer null-guard
 
-**Problem:** `BaseReaderBlock`/`buildBlockComponent` does `blocks[type].Component` with no guard — a missing `document[id]` or unknown `type` throws an opaque React crash. `BlockNotFoundError` is *defined but never thrown* (`document-core/src/utils.ts:18-24`, dead code).
+**Problem:** `BaseReaderBlock`/`buildBlockComponent` does `blocks[type].Component` with no guard — a missing `document[id]` or unknown `type` throws an opaque React crash. `BlockNotFoundError` is _defined but never thrown_ (`document-core/src/utils.ts:18-24`, dead code).
 
 **Tasks**
+
 - [ ] In `buildBlockComponent.tsx`, guard unknown `type` → render `null` (or a dev-only visible placeholder) and `console.warn` once. Wire up the existing `BlockNotFoundError`.
 - [ ] In `Reader/core.tsx` `ReaderBlock`, guard missing `document[id]` → `null` + warn; never pass `undefined` into a component.
 - [ ] Add a React error boundary around the editor canvas (`examples/` side — coordinate with WS-06) so a bad block doesn't white-screen the editor.
@@ -52,6 +54,7 @@
 **Problem:** `renderToStaticMarkup.tsx` emits only `<!DOCTYPE html><html><body>…`. No head, no `<style>`, so media queries / dark mode / hover are impossible.
 
 ### Tasks — document head
+
 - [x] Rewrite `renderToStaticMarkup` to emit a full head:
   - `<html lang="…">` (default `"en"`, overridable via opts)
   - `<meta charset="utf-8">`, `<meta name="viewport" content="width=device-width, initial-scale=1">`
@@ -62,6 +65,7 @@
 - [x] Add `renderToStaticMarkup` options: `{ rootBlockId, lang?, title?, preheader? }`. Keep `rootBlockId` working exactly as today (backward compatible). Type exported as `TRenderToStaticMarkupOptions` from `@usewaypoint/email-builder`.
 
 ### Tasks — Style Registry (the frozen contract) ✅ FROZEN
+
 - [x] Implement a React-context registry. **Frozen API** (implemented in `packages/block-kit/src/StyleRegistry.tsx`):
 
 ```ts
@@ -70,13 +74,16 @@ interface StyleRegistry {
   /** Register raw CSS appended verbatim into the head <style>. Deduped by `key`. */
   addRule(key: string, css: string): void;
   /** Convenience: register a class with base + responsive + dark variants. */
-  addClass(className: string, opts: {
-    base?: string;          // always-applied rules (usually keep inline instead)
-    mobile?: string;        // wrapped in @media (max-width:600px)
-    dark?: string;          // wrapped in @media (prefers-color-scheme: dark)
-  }): void;
+  addClass(
+    className: string,
+    opts: {
+      base?: string; // always-applied rules (usually keep inline instead)
+      mobile?: string; // wrapped in @media (max-width:600px)
+      dark?: string; // wrapped in @media (prefers-color-scheme: dark)
+    }
+  ): void;
 }
-function useStyleRegistry(): StyleRegistry;   // hook for block components
+function useStyleRegistry(): StyleRegistry; // hook for block components
 ```
 
 - [x] During `renderToStaticMarkup`, use a **collecting context**: a mutable registry is passed via `StyleRegistryProvider`; the body renders once (blocks register rules as a pure side effect), then the head — containing the single collected `<head><style>` — is assembled as a string before the already-rendered body. No async, no double render.
@@ -86,7 +93,7 @@ function useStyleRegistry(): StyleRegistry;   // hook for block components
 
 **Acceptance:** A block can register a class with mobile/dark variants and it appears once, deterministically, in `<head>`. ✅ The registry API is documented here and **frozen** — additive changes only.
 
-> **Note on scope:** `addClass.base` is supported but emits a top-level `.className{…}` rule; prefer inline styles for always-on properties (clients strip `<style>`). The registry is for what inline styles *cannot* express: `@media` and pseudo-selectors. The live editor `<Reader/>` has no provider, so `useStyleRegistry()` returns a no-op there — head-injected CSS only materializes through `renderToStaticMarkup`. Wiring the editor preview to a registry (so responsive/dark previews work in-canvas) is deferred to the consuming workstream.
+> **Note on scope:** `addClass.base` is supported but emits a top-level `.className{…}` rule; prefer inline styles for always-on properties (clients strip `<style>`). The registry is for what inline styles _cannot_ express: `@media` and pseudo-selectors. The live editor `<Reader/>` has no provider, so `useStyleRegistry()` returns a no-op there — head-injected CSS only materializes through `renderToStaticMarkup`. Wiring the editor preview to a registry (so responsive/dark previews work in-canvas) is deferred to the consuming workstream.
 
 ---
 
@@ -98,6 +105,7 @@ function useStyleRegistry(): StyleRegistry;   // hook for block components
 ---
 
 ## Files
+
 - New: `packages/block-kit/{package.json,tsconfig.json,src/index.ts,src/StyleRegistry.tsx}`
 - `packages/email-builder/src/renderers/renderToStaticMarkup.tsx`
 - `packages/email-builder/src/Reader/core.tsx`
@@ -106,8 +114,10 @@ function useStyleRegistry(): StyleRegistry;   // hook for block components
 - Root `package.json` (workspaces)
 
 ## Risks
+
 - **Two-pass render** must not double-execute side effects — blocks are pure, so safe; verify no `Date.now()`/random in block render paths (there aren't).
 - Refactor (18) is wide-reaching; do it as its own commit with snapshot proof before touching the renderer.
 
 ## Definition of done
+
 All boxes above ticked, registry API frozen + documented, `npm test` green, sample snapshots stable (except intentional head additions, which get fresh baselines).

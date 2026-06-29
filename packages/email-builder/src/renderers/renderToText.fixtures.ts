@@ -81,7 +81,8 @@ export const KITCHEN_SINK: TReaderDocument = {
     type: 'Html',
     data: {
       props: {
-        contents: '<p>Custom <strong>HTML</strong> block with a <a href="https://example.com/terms">terms link</a>.</p>',
+        contents:
+          '<p>Custom <strong>HTML</strong> block with a <a href="https://example.com/terms">terms link</a>.</p>',
       },
     },
   },

@@ -3,12 +3,7 @@ import React from 'react';
 import { describe, expect, it } from '@jest/globals';
 import { render } from '@testing-library/react';
 
-import {
-  createStyleRegistry,
-  StyleRegistry,
-  StyleRegistryProvider,
-  useStyleRegistry,
-} from '../src/StyleRegistry';
+import { createStyleRegistry, StyleRegistry, StyleRegistryProvider, useStyleRegistry } from '../src/StyleRegistry';
 
 describe('block-kit/StyleRegistry', () => {
   it('renders an empty string when nothing is registered', () => {

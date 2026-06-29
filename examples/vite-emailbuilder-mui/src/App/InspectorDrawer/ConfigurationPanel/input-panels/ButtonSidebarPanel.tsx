@@ -104,9 +104,7 @@ export default function ButtonSidebarPanel({ data, setData }: ButtonSidebarPanel
         min={0}
         max={64}
         defaultValue={borderRadius}
-        onChange={(v) =>
-          updateData({ ...data, props: { ...data.props, borderRadius: v === 0 ? null : v } })
-        }
+        onChange={(v) => updateData({ ...data, props: { ...data.props, borderRadius: v === 0 ? null : v } })}
       />
       {/* WS-07 (item 15-B): custom inner padding (overrides the Size preset). */}
       <RadioGroupInput
@@ -117,8 +115,7 @@ export default function ButtonSidebarPanel({ data, setData }: ButtonSidebarPanel
             ...data,
             props: {
               ...data.props,
-              buttonPadding:
-                mode === 'CUSTOM' ? { vertical: paddingVertical, horizontal: paddingHorizontal } : null,
+              buttonPadding: mode === 'CUSTOM' ? { vertical: paddingVertical, horizontal: paddingHorizontal } : null,
             },
           })
         }
@@ -137,7 +134,10 @@ export default function ButtonSidebarPanel({ data, setData }: ButtonSidebarPanel
             max={48}
             defaultValue={paddingVertical}
             onChange={(vertical) =>
-              updateData({ ...data, props: { ...data.props, buttonPadding: { vertical, horizontal: paddingHorizontal } } })
+              updateData({
+                ...data,
+                props: { ...data.props, buttonPadding: { vertical, horizontal: paddingHorizontal } },
+              })
             }
           />
           <SliderInput
@@ -149,7 +149,10 @@ export default function ButtonSidebarPanel({ data, setData }: ButtonSidebarPanel
             max={80}
             defaultValue={paddingHorizontal}
             onChange={(horizontal) =>
-              updateData({ ...data, props: { ...data.props, buttonPadding: { vertical: paddingVertical, horizontal } } })
+              updateData({
+                ...data,
+                props: { ...data.props, buttonPadding: { vertical: paddingVertical, horizontal } },
+              })
             }
           />
         </>
@@ -179,7 +182,10 @@ export default function ButtonSidebarPanel({ data, setData }: ButtonSidebarPanel
             max={12}
             defaultValue={borderWidth}
             onChange={(width) =>
-              updateData({ ...data, props: { ...data.props, border: { color: borderColor, width, style: borderStyle } } })
+              updateData({
+                ...data,
+                props: { ...data.props, border: { color: borderColor, width, style: borderStyle } },
+              })
             }
           />
           <RadioGroupInput
@@ -190,7 +196,11 @@ export default function ButtonSidebarPanel({ data, setData }: ButtonSidebarPanel
                 ...data,
                 props: {
                   ...data.props,
-                  border: { color: borderColor, width: borderWidth, style: style as 'solid' | 'dashed' | 'dotted' | 'none' },
+                  border: {
+                    color: borderColor,
+                    width: borderWidth,
+                    style: style as 'solid' | 'dashed' | 'dotted' | 'none',
+                  },
                 },
               })
             }

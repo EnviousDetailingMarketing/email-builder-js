@@ -11,6 +11,7 @@ import {
   registerDarkColor,
   useStyleRegistry,
 } from '@usewaypoint/block-kit';
+
 import EmailMarkdown from './EmailMarkdown';
 
 export const TextPropsSchema = z.object({

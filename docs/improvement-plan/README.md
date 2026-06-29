@@ -1,7 +1,7 @@
 # EmailBuilder.js — Improvement Plan (Master)
 
 > **Goal:** Harden this fork into a **rock-solid, embeddable email builder** for our CRM.
-> We are **not** adding personalization/templating (merge variables, loops, conditionals) right now — that is explicitly out of scope. We are making the *output* production-grade across email clients and the *editor* genuinely usable.
+> We are **not** adding personalization/templating (merge variables, loops, conditionals) right now — that is explicitly out of scope. We are making the _output_ production-grade across email clients and the _editor_ genuinely usable.
 
 This plan is organized into **workstreams**, each owned by an **agent team**. It is designed so multiple teams can work in parallel after a shared foundation lands. Each workstream has its own charter file in [`workstreams/`](./workstreams/) with a detailed checklist, file targets, and acceptance criteria. Live status lives in [`TRACKING.md`](./TRACKING.md).
 
@@ -11,24 +11,25 @@ This plan is organized into **workstreams**, each owned by an **agent team**. It
 
 ### In scope (from owner's prioritized list)
 
-| # | Item | Workstream |
-|---|------|-----------|
-| 2 | Per-column mobile stacking (some columns stack, some stay side-by-side) | WS-02 Responsive |
-| 3 | Full responsive support (head, viewport, media queries, fluid layout) | WS-02 Responsive |
-| 4 | Outlook & broad email-client compatibility | WS-03 Client Compat |
-| 5 | Dark mode — both editor **preview** and rendered-output **support** | WS-04 Dark Mode |
-| 6 | Extensive plain-text fallback generation | WS-05 Plain Text |
-| 8 | Undo / redo | WS-06 Editor UX |
-| 11 | Inline canvas editing | WS-06 Editor UX |
-| 12 | Fix block-ID collision bug | WS-06 Editor UX |
-| 15 | Better color, button, and container styling controls | WS-07 Block Styling |
-| 17 | Secure all raw-HTML handling | WS-08 Security & A11y |
-| 18 | Eliminate duplicated block code (shared kit) | WS-01 Foundation |
-| 19 | Renderer null-guard / graceful missing-block handling | WS-01 Foundation |
-| 20 | Accessibility (alt text, semantics, lang, roles) | WS-08 Security & A11y |
-| 21 | Performance smells (lower priority, opportunistic) | WS-06 Editor UX |
+| #   | Item                                                                    | Workstream            |
+| --- | ----------------------------------------------------------------------- | --------------------- |
+| 2   | Per-column mobile stacking (some columns stack, some stay side-by-side) | WS-02 Responsive      |
+| 3   | Full responsive support (head, viewport, media queries, fluid layout)   | WS-02 Responsive      |
+| 4   | Outlook & broad email-client compatibility                              | WS-03 Client Compat   |
+| 5   | Dark mode — both editor **preview** and rendered-output **support**     | WS-04 Dark Mode       |
+| 6   | Extensive plain-text fallback generation                                | WS-05 Plain Text      |
+| 8   | Undo / redo                                                             | WS-06 Editor UX       |
+| 11  | Inline canvas editing                                                   | WS-06 Editor UX       |
+| 12  | Fix block-ID collision bug                                              | WS-06 Editor UX       |
+| 15  | Better color, button, and container styling controls                    | WS-07 Block Styling   |
+| 17  | Secure all raw-HTML handling                                            | WS-08 Security & A11y |
+| 18  | Eliminate duplicated block code (shared kit)                            | WS-01 Foundation      |
+| 19  | Renderer null-guard / graceful missing-block handling                   | WS-01 Foundation      |
+| 20  | Accessibility (alt text, semantics, lang, roles)                        | WS-08 Security & A11y |
+| 21  | Performance smells (lower priority, opportunistic)                      | WS-06 Editor UX       |
 
 ### Explicitly OUT of scope (for now)
+
 - Personalization / merge variables / Liquid / loops / conditionals.
 - Backend persistence, auth, multi-user collaboration, versioning (the host CRM owns persistence).
 - AMP for Email.
@@ -43,7 +44,7 @@ Today the renderer is **pure inline styles** through `ReactDOMServer.renderToSta
 **Decision — introduce a Style Registry + a real document `<head>`.** WS-01 builds this once; WS-02/03/04 consume it.
 
 - Keep **inline styles** as the base layer (email-safe default appearance — unchanged philosophy).
-- Add a **React-context "Style Registry"** that blocks can push CSS rules + class names into *during render*. After the body renders, the collected CSS is flushed into a single `<style>` block in `<head>`.
+- Add a **React-context "Style Registry"** that blocks can push CSS rules + class names into _during render_. After the body renders, the collected CSS is flushed into a single `<style>` block in `<head>`.
 - The renderer emits a proper document head: `<!DOCTYPE html>`, `lang`, `<meta charset>`, `<meta viewport>`, `<meta name="color-scheme">`, `<title>`, MSO conditional CSS, and a client-reset stylesheet.
 
 ```
@@ -91,22 +92,22 @@ PHASE 2 — INTEGRATION
 
 ## 4. Agent team roster
 
-| Team | Workstream | Charter | Primary surfaces |
-|------|-----------|---------|------------------|
-| **Foundation** | WS-01 | [01-foundation.md](./workstreams/01-foundation.md) | new `packages/block-kit`, `email-builder/src/renderers`, `Reader/core` |
-| **Responsive** | WS-02 | [02-responsive.md](./workstreams/02-responsive.md) | `block-columns-container`, `EmailLayout`, registry consumers |
-| **Client-Compat** | WS-03 | [03-client-compat.md](./workstreams/03-client-compat.md) | `EmailLayout`, `block-button`, `block-image`, columns |
-| **Dark-Mode** | WS-04 | [04-dark-mode.md](./workstreams/04-dark-mode.md) | renderer head, all color-bearing blocks, editor preview |
-| **Plain-Text** | WS-05 | [05-plain-text.md](./workstreams/05-plain-text.md) | new `renderToText` in `email-builder` |
-| **Editor-UX** | WS-06 | [06-editor-ux.md](./workstreams/06-editor-ux.md) | `examples/vite-emailbuilder-mui` only |
-| **Block-Styling** | WS-07 | [07-block-styling.md](./workstreams/07-block-styling.md) | `block-kit` color, `block-button`, `block-container` |
-| **Security-A11y** | WS-08 | [08-security-a11y.md](./workstreams/08-security-a11y.md) | `block-html`, `block-image`, `block-avatar`, `block-text`, headings |
+| Team              | Workstream | Charter                                                  | Primary surfaces                                                       |
+| ----------------- | ---------- | -------------------------------------------------------- | ---------------------------------------------------------------------- |
+| **Foundation**    | WS-01      | [01-foundation.md](./workstreams/01-foundation.md)       | new `packages/block-kit`, `email-builder/src/renderers`, `Reader/core` |
+| **Responsive**    | WS-02      | [02-responsive.md](./workstreams/02-responsive.md)       | `block-columns-container`, `EmailLayout`, registry consumers           |
+| **Client-Compat** | WS-03      | [03-client-compat.md](./workstreams/03-client-compat.md) | `EmailLayout`, `block-button`, `block-image`, columns                  |
+| **Dark-Mode**     | WS-04      | [04-dark-mode.md](./workstreams/04-dark-mode.md)         | renderer head, all color-bearing blocks, editor preview                |
+| **Plain-Text**    | WS-05      | [05-plain-text.md](./workstreams/05-plain-text.md)       | new `renderToText` in `email-builder`                                  |
+| **Editor-UX**     | WS-06      | [06-editor-ux.md](./workstreams/06-editor-ux.md)         | `examples/vite-emailbuilder-mui` only                                  |
+| **Block-Styling** | WS-07      | [07-block-styling.md](./workstreams/07-block-styling.md) | `block-kit` color, `block-button`, `block-container`                   |
+| **Security-A11y** | WS-08      | [08-security-a11y.md](./workstreams/08-security-a11y.md) | `block-html`, `block-image`, `block-avatar`, `block-text`, headings    |
 
 ---
 
 ## 5. Coordination protocol (how teams avoid stepping on each other)
 
-1. **File-ownership matrix** (below) is authoritative. If you need to edit a file another team owns, open a *change request* note in [`TRACKING.md`](./TRACKING.md) and tag that team's lead before editing.
+1. **File-ownership matrix** (below) is authoritative. If you need to edit a file another team owns, open a _change request_ note in [`TRACKING.md`](./TRACKING.md) and tag that team's lead before editing.
 2. **Schema changes are coordinated.** All Zod schema changes funnel through `block-kit` (WS-01/WS-07). Adding a field to a block's `data` is backward-compatible only if it is `.optional()`. **Never** rename or remove an existing field without a migration note — existing CRM-stored documents must still parse.
 3. **Registry API is frozen after WS-01.** Changes require sign-off from WS-02/03/04 leads (the consumers).
 4. **Every workstream ships with tests** (unit/snapshot) and updates the cross-client QA matrix. A workstream is not "done" until WS-01's `renderToStaticMarkup` snapshot tests still pass.
@@ -114,18 +115,18 @@ PHASE 2 — INTEGRATION
 
 ### File-ownership matrix (primary owner)
 
-| Path | Owner |
-|------|-------|
-| `packages/block-kit/**` (new) | WS-01 (schemas), WS-07 (color/style additions via CR) |
-| `packages/email-builder/src/renderers/**` | WS-01, then WS-05 adds `renderToText` |
-| `packages/email-builder/src/Reader/core.tsx` | WS-01 |
-| `packages/email-builder/.../EmailLayout/**` | WS-01 head infra; WS-02/03/04 add CSS via registry |
-| `packages/block-columns-container/**` | WS-02 |
-| `packages/block-button/**` | WS-07 styling; WS-03 MSO; coordinate via CR |
-| `packages/block-html/**` | WS-08 |
-| `packages/block-image/**`, `block-avatar/**` | WS-08 (a11y), WS-03 (MSO img) via CR |
-| `packages/block-container/**` | WS-07 |
-| `examples/vite-emailbuilder-mui/**` | WS-06 (UX); other teams add inspector controls for their new fields via CR |
+| Path                                         | Owner                                                                      |
+| -------------------------------------------- | -------------------------------------------------------------------------- |
+| `packages/block-kit/**` (new)                | WS-01 (schemas), WS-07 (color/style additions via CR)                      |
+| `packages/email-builder/src/renderers/**`    | WS-01, then WS-05 adds `renderToText`                                      |
+| `packages/email-builder/src/Reader/core.tsx` | WS-01                                                                      |
+| `packages/email-builder/.../EmailLayout/**`  | WS-01 head infra; WS-02/03/04 add CSS via registry                         |
+| `packages/block-columns-container/**`        | WS-02                                                                      |
+| `packages/block-button/**`                   | WS-07 styling; WS-03 MSO; coordinate via CR                                |
+| `packages/block-html/**`                     | WS-08                                                                      |
+| `packages/block-image/**`, `block-avatar/**` | WS-08 (a11y), WS-03 (MSO img) via CR                                       |
+| `packages/block-container/**`                | WS-07                                                                      |
+| `examples/vite-emailbuilder-mui/**`          | WS-06 (UX); other teams add inspector controls for their new fields via CR |
 
 > Note the **inspector panels** in the editor (`examples/.../InspectorDrawer/ConfigurationPanel/*SidebarPanel.tsx`) must gain a control for every new schema field. Each team that adds a field also adds its inspector control; WS-06 reviews for consistency.
 

@@ -46,7 +46,9 @@ describe('block-button', () => {
   // (e.g. white) label as-is; emit prefers-color-scheme + [data-ogsb] hooks.
   it('registers a dark override for a light button background and keeps a light label', () => {
     const { html, css } = renderWithRegistry(
-      <Button props={{ text: 'Go', url: 'https://x.test', buttonBackgroundColor: '#cccccc', buttonTextColor: '#ffffff' }} />
+      <Button
+        props={{ text: 'Go', url: 'https://x.test', buttonBackgroundColor: '#cccccc', buttonTextColor: '#ffffff' }}
+      />
     );
     // The link carries the darkened-background class; white text needs no override.
     expect(html).toContain('ebw-d-bg-cccccc');
@@ -57,7 +59,9 @@ describe('block-button', () => {
 
   it('darkens a dark button label so it stays legible on a dark surface', () => {
     const { html, css } = renderWithRegistry(
-      <Button props={{ text: 'Go', url: 'https://x.test', buttonBackgroundColor: '#222222', buttonTextColor: '#111111' }} />
+      <Button
+        props={{ text: 'Go', url: 'https://x.test', buttonBackgroundColor: '#222222', buttonTextColor: '#111111' }}
+      />
     );
     // Dark bg is left as-is; dark text is lightened.
     expect(html).toContain('ebw-d-fg-111111');
@@ -79,7 +83,9 @@ describe('block-button', () => {
 
     it('applies custom inner padding over the size preset', () => {
       const { container } = render(
-        <Button props={{ text: 'Go', url: 'https://x.test', buttonPadding: { vertical: 7, horizontal: 21 }, size: 'medium' }} />
+        <Button
+          props={{ text: 'Go', url: 'https://x.test', buttonPadding: { vertical: 7, horizontal: 21 }, size: 'medium' }}
+        />
       );
       expect(container.querySelector('a')?.getAttribute('style')).toContain('padding: 7px 21px');
     });

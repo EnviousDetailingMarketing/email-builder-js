@@ -16,18 +16,18 @@ Email rendering cannot be trusted from a DOM snapshot alone — it must be check
 
 Use Litmus or Email on Acid if available. Otherwise do the manual checks noted. Fill a row when your workstream touches rendering.
 
-| Client | Light | Dark | Mobile | Notes / owner |
-|--------|:----:|:----:|:------:|---------------|
-| Gmail (web) | ⬜ | ⬜ | — | dark = forced invert |
-| Gmail (iOS app) | ⬜ | ⬜ | ⬜ | |
-| Gmail (Android app) | ⬜ | ⬜ | ⬜ | |
-| Apple Mail (macOS) | ⬜ | ⬜ | — | best dark-mode support |
-| Apple Mail (iOS) | ⬜ | ⬜ | ⬜ | |
-| **Outlook (Windows, Word engine)** | ⬜ | ⬜ | — | **critical — WS-03** |
-| Outlook.com (web) | ⬜ | ⬜ | — | `[data-ogsc]` dark |
-| Yahoo Mail | ⬜ | ⬜ | — | |
-| HEY | ⬜ | — | — | |
-| Superhuman | ⬜ | — | — | |
+| Client                             | Light | Dark | Mobile | Notes / owner          |
+| ---------------------------------- | :---: | :--: | :----: | ---------------------- |
+| Gmail (web)                        |  ⬜   |  ⬜  |   —    | dark = forced invert   |
+| Gmail (iOS app)                    |  ⬜   |  ⬜  |   ⬜   |                        |
+| Gmail (Android app)                |  ⬜   |  ⬜  |   ⬜   |                        |
+| Apple Mail (macOS)                 |  ⬜   |  ⬜  |   —    | best dark-mode support |
+| Apple Mail (iOS)                   |  ⬜   |  ⬜  |   ⬜   |                        |
+| **Outlook (Windows, Word engine)** |  ⬜   |  ⬜  |   —    | **critical — WS-03**   |
+| Outlook.com (web)                  |  ⬜   |  ⬜  |   —    | `[data-ogsc]` dark     |
+| Yahoo Mail                         |  ⬜   |  ⬜  |   —    |                        |
+| HEY                                |  ⬜   |  —   |   —    |                        |
+| Superhuman                         |  ⬜   |  —   |   —    |                        |
 
 ## 3. Scenario checklist (the things that historically break)
 

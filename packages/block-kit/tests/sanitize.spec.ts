@@ -37,9 +37,7 @@ describe('block-kit/sanitizeEmailHtml', () => {
     });
 
     it('drops data: URLs (base64 html payloads)', () => {
-      const out = sanitizeEmailHtml(
-        '<a href="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==">x</a>'
-      );
+      const out = sanitizeEmailHtml('<a href="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==">x</a>');
       expect(out).not.toContain('data:');
     });
 

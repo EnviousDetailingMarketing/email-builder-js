@@ -1,5 +1,6 @@
-import { htmlToText as sanitizeHtmlToText } from '@usewaypoint/block-kit';
 import { marked, type Token, type Tokens } from 'marked';
+
+import { htmlToText as sanitizeHtmlToText } from '@usewaypoint/block-kit';
 
 import { TReaderDocument } from '../Reader/core';
 

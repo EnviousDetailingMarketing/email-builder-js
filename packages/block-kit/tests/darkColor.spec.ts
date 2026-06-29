@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { createStyleRegistry } from '../src/StyleRegistry';
 import { deriveDarkColor, joinClasses, registerDarkColor } from '../src/darkColor';
+import { createStyleRegistry } from '../src/StyleRegistry';
 
 // WS-07 (CR-4): darkColor was deduped out of 6 block packages into block-kit.
 // This spec proves the moved behavior locally (consumers can only see the new
