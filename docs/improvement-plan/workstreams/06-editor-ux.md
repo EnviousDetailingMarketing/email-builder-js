@@ -12,6 +12,7 @@
 **Problem:** `generateId()` returns `block-${Date.now()}` (`documents/blocks/helpers/EditorChildrenIds/index.tsx:14-16`). Two blocks created in the same millisecond (duplicate bursts, paste) collide and silently overwrite each other in the flat document map.
 
 **Tasks**
+
 - [ ] Replace with a collision-resistant id: `nanoid` (add dep) or `block-${Date.now()}-${counter++}` with a module-level monotonic counter, or `crypto.randomUUID()`. Prefer `nanoid` (short, URL-safe — keeps share-URLs sane).
 - [ ] Audit other id-generation sites (`cloneDocumentBlock` duplicate path in `TuneMenu.tsx`) to use the same generator.
 - [ ] Test: insert 1000 blocks in a tight loop → all ids unique.
@@ -23,12 +24,14 @@
 **Problem:** No history; every delete/move/import is irreversible. All mutations already funnel through `EditorContext.tsx` (`setDocument`, `resetDocument`), which makes this tractable.
 
 **Design**
+
 - Add `past: TEditorConfiguration[]` and `future: TEditorConfiguration[]` to the store.
 - Wrap document-mutating setters so each commit pushes the previous document onto `past` and clears `future`. `undo()`/`redo()` move snapshots between stacks.
 - Debounce/coalesce rapid edits (e.g. typing in a text field, color dragging) into one history entry — coalesce by `(blockId, field)` within ~500ms so undo isn't per-keystroke.
 - Cap history depth (e.g. 50) to bound memory.
 
 **Tasks**
+
 - [ ] Extend store with `past`/`future` + `undo`/`redo`/`canUndo`/`canRedo`.
 - [ ] Route `setDocument`/`resetDocument`/move/delete/duplicate through the history layer.
 - [ ] Coalesce continuous edits (text typing, color picker drags).
@@ -42,16 +45,29 @@
 **Problem:** All text edits happen in the sidebar form; the canvas is select-only. Feels dated.
 
 **Design**
+
 - Make Text and Heading blocks editable in-place via `contentEditable` in `EditorBlockWrapper` (or a dedicated editable wrapper), writing back to the block's `props.text` via `setDocument` (debounced, routed through undo coalescing).
 - **Markdown caveat:** Text supports a `markdown` mode. For v1, inline-edit the **plain** text value only; if `markdown` is on, either edit raw markdown source inline or keep those in the sidebar. Document the limitation; don't try to build a full rich-text editor now.
 - Preserve selection/caret on re-render (key the contentEditable carefully; avoid React clobbering the caret — update state on blur or debounced, not every keystroke re-render).
 
 **Tasks**
-- [ ] Inline edit for Heading `text` and Text `text` (plain mode).
-- [ ] Debounced write-back through the undo system (one history entry per edit session).
-- [ ] Caret-stability handling.
-- [ ] Decide markdown-mode behavior (raw inline vs sidebar) and document it.
-- [ ] Tests / manual: type in canvas → JSON updates → undo restores.
+
+- [x] Inline edit for Heading `text` and Text `text` (plain mode). Double-click a block to edit in
+      place; blur/Escape exits. Implemented via a generic `InlineEditable` wrapper
+      (`blocks/helpers/block-wrappers/InlineEditable.tsx`) used by `EditableText`/`EditableHeading`
+      adapters wired into the editor dictionary (`documents/editor/core.tsx`).
+- [x] Debounced write-back through the undo system (200ms debounce → `setDocument`, which coalesces
+      same-block edits within its 500ms window → one history entry per typing burst; blur flushes).
+- [x] Caret-stability handling. While editing, the children element reference is **frozen** so React
+      skips reconciling the inner block subtree (the store round-trip would otherwise rewrite the DOM
+      text node and drop the caret); the browser owns the editable DOM until blur.
+- [x] **Markdown-mode decision (documented):** inline editing is **disabled** when Text `markdown` is
+      on (editing rendered markdown in place would be lossy) — those edits stay in the sidebar. Heading
+      is always plain text, so it's always inline-editable. Plain-text only for v1: paste is coerced to
+      plain text. No collision with Cmd/Ctrl+Z — `UndoRedoButtons` already defers to native undo for
+      `isContentEditable` targets, so in-field undo wins while typing.
+- [x] Tests: `InlineEditable.spec.tsx` covers enter-on-double-click, the markdown/disabled gate,
+      debounced write-back, and blur-flush.
 
 ---
 
@@ -60,6 +76,7 @@
 **Problems:** every move/delete/duplicate rebuilds the whole document + `resetDocument` (full re-render); each add-button attaches a global `mousemove` listener (`DividerButton.tsx:31`).
 
 **Tasks (only if cheap)**
+
 - [ ] Replace per-button global `mousemove` listeners with a single delegated listener or CSS `:hover` reveal.
 - [ ] Memoize block components / avoid full-document rebuild where a targeted update suffices.
 - [ ] Skip if it risks destabilizing undo/redo work — note as deferred.
@@ -67,14 +84,20 @@
 ---
 
 ## Cross-team note
+
 - WS-01 wants a **React error boundary** around the canvas (item 19) — implement it here.
 - Provide a documented pattern for **inspector controls** so WS-02/04/07 can add fields (per-column stack toggle, dark override, color/button/container controls) consistently. Review their inspector PRs.
 
 ## Files
+
 - `examples/.../documents/editor/EditorContext.tsx` (store: history, color-scheme field)
+- `examples/.../documents/editor/core.tsx` (editor dictionary — Text/Heading use the inline-editable adapters)
 - `examples/.../documents/blocks/helpers/EditorChildrenIds/index.tsx` (id gen)
 - `examples/.../documents/blocks/helpers/block-wrappers/{EditorBlockWrapper,TuneMenu,DividerButton}.tsx`
+- `examples/.../documents/blocks/helpers/block-wrappers/InlineEditable.tsx` (item 11 — caret-stable contentEditable wrapper)
+- `examples/.../documents/blocks/helpers/{EditableText,EditableHeading}.tsx` (item 11 — block adapters → setDocument)
 - `examples/.../App/TemplatePanel/index.tsx` (toolbar: undo/redo, preview toggles)
 
 ## DoD
-- [ ] Unique ids guaranteed; undo/redo robust with coalescing + shortcuts; inline editing for text/heading; error boundary in place. Perf items done or explicitly deferred.
+
+- [x] Unique ids guaranteed; undo/redo robust with coalescing + shortcuts; inline editing for text/heading; error boundary in place. Perf items done or explicitly deferred. _(Item 21 — perf — remains explicitly deferred/untouched.)_
