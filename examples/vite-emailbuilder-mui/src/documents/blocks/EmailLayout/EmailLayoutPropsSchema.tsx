@@ -1,10 +1,6 @@
 import { z } from 'zod';
 
-const COLOR_SCHEMA = z
-  .string()
-  .regex(/^#[0-9a-fA-F]{6}$/)
-  .nullable()
-  .optional();
+import { BORDER_RADIUS_SCHEMA, COLOR_SCHEMA } from '@usewaypoint/block-kit';
 
 const FONT_FAMILY_SCHEMA = z
   .enum([
@@ -24,7 +20,7 @@ const FONT_FAMILY_SCHEMA = z
 const EmailLayoutPropsSchema = z.object({
   backdropColor: COLOR_SCHEMA,
   borderColor: COLOR_SCHEMA,
-  borderRadius: z.number().optional().nullable(),
+  borderRadius: BORDER_RADIUS_SCHEMA,
   canvasColor: COLOR_SCHEMA,
   textColor: COLOR_SCHEMA,
   fontFamily: FONT_FAMILY_SCHEMA,

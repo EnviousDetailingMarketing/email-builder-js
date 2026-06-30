@@ -44,6 +44,23 @@ describe('block-columns-container', () => {
     expect(container.querySelector('td[width="400"]')).not.toBeNull();
   });
 
+  // Regression: when only SOME columns are pinned, the un-pinned ones must stay
+  // `auto` (no width attr) so they absorb the table's remaining space and the
+  // pinned column renders at its exact px. Emitting the 50%/33.33% even-split
+  // default here lets `table-layout:fixed` redistribute slack and inflate the
+  // pinned column past its requested width.
+  it('omits the width attr on un-pinned columns when a sibling is pinned', () => {
+    const cols = [<>a</>, <>b</>];
+    const { container } = render(
+      <ColumnsContainer props={{ columnsCount: 2, fixedWidths: [5, null, null] }} columns={cols} />
+    );
+    const cells = container.querySelectorAll('td');
+    expect(cells[0].getAttribute('width')).toBe('5');
+    // The un-pinned sibling stays auto — no width attribute, no even-split default.
+    expect(cells[1].getAttribute('width')).toBeNull();
+    expect(container.querySelector('td[width="50%"]')).toBeNull();
+  });
+
   describe('columnsCount 2', () => {
     it('renders column children', () => {
       const columns = [<>bread</>, <>tomato</>, <>lettuce</>];

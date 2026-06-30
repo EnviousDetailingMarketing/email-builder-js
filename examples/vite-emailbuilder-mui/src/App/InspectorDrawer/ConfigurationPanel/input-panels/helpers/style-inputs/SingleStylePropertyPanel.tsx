@@ -1,14 +1,12 @@
 import React from 'react';
 
-import { RoundedCornerOutlined } from '@mui/icons-material';
-
 import { TStyle } from '../../../../../../documents/blocks/helpers/TStyle';
+import BorderRadiusInput from '../inputs/BorderRadiusInput';
 import { NullableColorInput } from '../inputs/ColorInput';
 import { NullableFontFamily } from '../inputs/FontFamily';
 import FontSizeInput from '../inputs/FontSizeInput';
 import FontWeightInput from '../inputs/FontWeightInput';
 import PaddingInput from '../inputs/PaddingInput';
-import SliderInput from '../inputs/SliderInput';
 import TextAlignInput from '../inputs/TextAlignInput';
 
 type StylePropertyPanelProps = {
@@ -29,19 +27,7 @@ export default function SingleStylePropertyPanel({ name, value, onChange }: Styl
     case 'borderColor':
       return <NullableColorInput label="Border color" defaultValue={defaultValue} onChange={handleChange} />;
     case 'borderRadius':
-      return (
-        <SliderInput
-          iconLabel={<RoundedCornerOutlined />}
-          units="px"
-          step={4}
-          marks
-          min={0}
-          max={48}
-          label="Border radius"
-          defaultValue={defaultValue}
-          onChange={handleChange}
-        />
-      );
+      return <BorderRadiusInput label="Border radius" defaultValue={defaultValue} onChange={handleChange} />;
     case 'color':
       return <NullableColorInput label="Text color" defaultValue={defaultValue} onChange={handleChange} />;
     case 'fontFamily':

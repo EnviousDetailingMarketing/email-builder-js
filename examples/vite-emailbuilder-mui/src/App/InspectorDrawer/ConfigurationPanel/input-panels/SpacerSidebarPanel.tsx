@@ -5,6 +5,7 @@ import { HeightOutlined } from '@mui/icons-material';
 import { SpacerProps, SpacerPropsDefaults, SpacerPropsSchema } from '@usewaypoint/block-spacer';
 
 import BaseSidebarPanel from './helpers/BaseSidebarPanel';
+import { NullableColorInput } from './helpers/inputs/ColorInput';
 import SliderInput from './helpers/inputs/SliderInput';
 
 type SpacerSidebarPanelProps = {
@@ -35,6 +36,11 @@ export default function SpacerSidebarPanel({ data, setData }: SpacerSidebarPanel
         max={128}
         defaultValue={data.props?.height ?? SpacerPropsDefaults.height}
         onChange={(height) => updateData({ ...data, props: { ...data.props, height } })}
+      />
+      <NullableColorInput
+        label="Background color"
+        defaultValue={data.props?.backgroundColor ?? null}
+        onChange={(backgroundColor) => updateData({ ...data, props: { ...data.props, backgroundColor } })}
       />
     </BaseSidebarPanel>
   );

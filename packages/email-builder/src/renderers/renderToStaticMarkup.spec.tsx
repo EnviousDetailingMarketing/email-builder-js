@@ -203,6 +203,55 @@ describe('renderToStaticMarkup', () => {
     expect(body).toContain('role="presentation"');
   });
 
+  // WS-04 regression: the exported HTML must only apply dark colors *conditionally*
+  // (via `@media (prefers-color-scheme: dark)` or the Outlook.com [data-ogsc]/
+  // [data-ogsb] hooks). It must NEVER force dark unconditionally — the editor's
+  // dark *preview* rewrites the media query to `@media all`, but that artifact is
+  // quarantined to the preview iframe and must not be reachable from the export.
+  it('gates every dark override behind a media query or Outlook hook (never unconditional)', () => {
+    const result = renderToStaticMarkup(MIXED_STACK_DOC, { rootBlockId: 'root' });
+    // The preview-only forced-dark transform must not leak into the export.
+    expect(result).not.toContain('@media all');
+    // Dark is present, but only inside the prefers-color-scheme guard.
+    expect(result).toContain('@media (prefers-color-scheme: dark){.ebw-email-body{background-color:');
+
+    // Strip every legitimately-gated dark rule — the `@media (prefers-color-scheme:
+    // dark){…}` blocks and the `[data-ogsc]/[data-ogsb]` Outlook hooks — then assert
+    // no dark color survives unconditionally. (#0a0a0a body bg, #d9d9d9 body text,
+    // #000000 canvas bg are this document's auto-derived dark palette.)
+    const style = result.slice(result.lastIndexOf('<style type="text/css">'), result.lastIndexOf('</style>'));
+    const ungated = style
+      .replace(/@media \(prefers-color-scheme: dark\)\{[^@]*?\}\}/g, '')
+      .replace(/\[data-ogs[cb]\][^}]*\}/g, '');
+    for (const darkColor of ['#0a0a0a', '#d9d9d9', '#000000']) {
+      expect(ungated).not.toContain(darkColor);
+    }
+  });
+
+  // WS-04 regression: block-level dark overrides must reach the head <style>, not
+  // just the element's class. A block (Text/Button/…) calls registerDarkColor,
+  // which attaches an `ebw-d-fg-*`/`ebw-d-bg-*` class AND registers the matching
+  // rule through the shared StyleRegistry. If a block package bundles its own copy
+  // of block-kit (e.g. a stale build or a dropped externalization), its
+  // useStyleRegistry() reads a *different* React context than the renderer's
+  // provider — so the class is still emitted but the rule silently vanishes,
+  // leaving dark-mode text/buttons uncolored. Guard against that drift here.
+  const DARK_TEXT_DOC: Parameters<typeof renderToStaticMarkup>[0] = {
+    root: { type: 'EmailLayout', data: { childrenIds: ['t'] } },
+    t: { type: 'Text', data: { style: { color: '#474849' }, props: { text: 'hello' } } },
+  };
+
+  it('emits the rule (not just the class) for a block-level dark color override', () => {
+    const result = renderToStaticMarkup(DARK_TEXT_DOC, { rootBlockId: 'root' });
+    const body = result.slice(result.indexOf('<body id="body">'));
+    const style = result.slice(result.lastIndexOf('<style type="text/css">'), result.lastIndexOf('</style>'));
+    // The Text block tags itself with the auto-derived dark foreground class…
+    expect(body).toContain('class="ebw-d-fg-474849"');
+    // …and the backing rule must be present and gated (media query + Outlook hook).
+    expect(style).toContain('@media (prefers-color-scheme: dark){.ebw-d-fg-474849{color:');
+    expect(style).toContain('[data-ogsc] .ebw-d-fg-474849{color:');
+  });
+
   it('keeps the head <style> deterministic across renders (snapshot)', () => {
     const result = renderToStaticMarkup(MIXED_STACK_DOC, { rootBlockId: 'root' });
     // The main reset+registry <style> is the *last* one — MSO_HEAD emits its own

@@ -95,6 +95,47 @@ export const getPadding = (padding: z.infer<typeof PADDING_SCHEMA>) =>
   padding ? `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px` : undefined;
 
 //
+// Border-radius schema + helper (WS-07, item 15-D).
+//
+// Historically `borderRadius` was a single `number` applied to all four corners.
+// It now also accepts a per-corner object so authors can round corners
+// independently (e.g. a top-only "card" look). A bare number keeps the legacy
+// meaning — and `getBorderRadius` returns that number untouched — so existing
+// documents render byte-for-byte identically.
+//
+const PER_CORNER_RADIUS_SCHEMA = z
+  .object({
+    topLeft: z.number().min(0).optional().nullable(),
+    topRight: z.number().min(0).optional().nullable(),
+    bottomRight: z.number().min(0).optional().nullable(),
+    bottomLeft: z.number().min(0).optional().nullable(),
+  })
+  .optional()
+  .nullable();
+
+export const BORDER_RADIUS_SCHEMA = z.union([z.number(), PER_CORNER_RADIUS_SCHEMA]).optional().nullable();
+
+// Resolves a `BORDER_RADIUS_SCHEMA` value to a CSS `borderRadius` value.
+//   - nullish        -> undefined (no radius emitted)
+//   - number         -> the number verbatim (React renders it as `px`; identical
+//                       to the legacy single-radius output)
+//   - per-corner obj -> a `top-left top-right bottom-right bottom-left` shorthand
+//                       string, each missing corner defaulting to 0
+export const getBorderRadius = (radius: z.infer<typeof BORDER_RADIUS_SCHEMA>): string | number | undefined => {
+  if (radius === null || radius === undefined) {
+    return undefined;
+  }
+  if (typeof radius === 'number') {
+    return radius;
+  }
+  const tl = radius.topLeft ?? 0;
+  const tr = radius.topRight ?? 0;
+  const br = radius.bottomRight ?? 0;
+  const bl = radius.bottomLeft ?? 0;
+  return `${tl}px ${tr}px ${br}px ${bl}px`;
+};
+
+//
 // Style Registry — head <style> infrastructure for responsive / dark / hover CSS.
 //
 export { StyleRegistryProvider, useStyleRegistry, createStyleRegistry } from './StyleRegistry';

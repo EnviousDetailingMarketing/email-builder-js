@@ -21,7 +21,9 @@
   "author": "carlos@usewaypoint.com",
   "license": "MIT",
   "dependencies": {
-    "@usewaypoint/block-kit": "^0.0.1"
+    "@usewaypoint/block-kit": "^0.0.1",
+    "insane": "^2.6.2",
+    "marked": "^12.0.2"
   },
   "peerDependencies": {
     "react": "^16 || ^17 || ^18",
@@ -30,9 +32,5 @@
   "devDependencies": {
     "@testing-library/react": "^14.2.1",
     "@types/insane": "^1.0.0"
-  },
-  "dependencies": {
-    "insane": "^2.6.2",
-    "marked": "^12.0.2"
   }
 }

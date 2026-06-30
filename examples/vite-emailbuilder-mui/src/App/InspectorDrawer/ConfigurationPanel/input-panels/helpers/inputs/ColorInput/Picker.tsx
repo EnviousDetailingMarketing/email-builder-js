@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { HexAlphaColorPicker, HexColorInput } from 'react-colorful';
 
-import { Box, Stack, SxProps } from '@mui/material';
+import { Box, Button, Stack, SxProps } from '@mui/material';
 
 import Swatch from './Swatch';
 
@@ -125,6 +125,14 @@ export default function Picker({ value, onChange }: Props) {
       onChange(v);
     }
   };
+  // The alpha slider already reaches full transparency, but the `transparent`
+  // keyword is the clearest, most portable way to author it (and what authors
+  // expect). Emit the keyword directly — it's accepted by COLOR_SCHEMA and
+  // round-trips through `toPickerHex` to a fully-transparent swatch.
+  const handleTransparent = () => {
+    setInternalValue('#00000000');
+    onChange('transparent');
+  };
 
   return (
     <Stack spacing={1} sx={SX}>
@@ -133,6 +141,9 @@ export default function Picker({ value, onChange }: Props) {
       <Box pt={1}>
         <HexColorInput prefixed alpha color={internalValue} onChange={handleChange} />
       </Box>
+      <Button size="small" variant="outlined" onClick={handleTransparent}>
+        Transparent
+      </Button>
     </Stack>
   );
 }

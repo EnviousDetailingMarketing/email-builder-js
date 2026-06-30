@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { deriveDarkColor, getFontFamily, useStyleRegistry } from '@usewaypoint/block-kit';
+import { deriveDarkColor, getBorderRadius, getFontFamily, useStyleRegistry } from '@usewaypoint/block-kit';
 
 import { ReaderBlock } from '../../Reader/core';
 
@@ -98,7 +98,7 @@ export default function EmailLayoutReader(props: EmailLayoutProps) {
           width: '100%',
           maxWidth: '600px',
           backgroundColor: props.canvasColor ?? '#FFFFFF',
-          borderRadius: props.borderRadius ?? undefined,
+          borderRadius: getBorderRadius(props.borderRadius),
           border: getBorder(props),
         }}
         role="presentation"

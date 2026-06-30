@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { getBorderRadius } from '@usewaypoint/block-kit';
+
 import { useCurrentBlockId } from '../../editor/EditorBlock';
 import { setDocument, setSelectedBlockId, useDocument } from '../../editor/EditorContext';
 import EditorChildrenIds from '../helpers/EditorChildrenIds';
@@ -61,7 +63,7 @@ export default function EmailLayoutEditor(props: EmailLayoutProps) {
           margin: '0 auto',
           maxWidth: '600px',
           backgroundColor: props.canvasColor ?? '#FFFFFF',
-          borderRadius: props.borderRadius ?? undefined,
+          borderRadius: getBorderRadius(props.borderRadius),
           border: (() => {
             const v = props.borderColor;
             if (!v) {

@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { ZodError } from 'zod';
 
-import { RoundedCornerOutlined } from '@mui/icons-material';
-
 import EmailLayoutPropsSchema, {
   EmailLayoutProps,
 } from '../../../../documents/blocks/EmailLayout/EmailLayoutPropsSchema';
 
 import BaseSidebarPanel from './helpers/BaseSidebarPanel';
+import BorderRadiusInput from './helpers/inputs/BorderRadiusInput';
 import ColorInput, { NullableColorInput } from './helpers/inputs/ColorInput';
 import { NullableFontFamily } from './helpers/inputs/FontFamily';
-import SliderInput from './helpers/inputs/SliderInput';
 
 type EmailLayoutSidebarFieldsProps = {
   data: EmailLayoutProps;
@@ -46,13 +44,7 @@ export default function EmailLayoutSidebarFields({ data, setData }: EmailLayoutS
         defaultValue={data.borderColor ?? null}
         onChange={(borderColor) => updateData({ ...data, borderColor })}
       />
-      <SliderInput
-        iconLabel={<RoundedCornerOutlined />}
-        units="px"
-        step={4}
-        marks
-        min={0}
-        max={48}
+      <BorderRadiusInput
         label="Canvas border radius"
         defaultValue={data.borderRadius ?? 0}
         onChange={(borderRadius) => updateData({ ...data, borderRadius })}

@@ -26,6 +26,20 @@ import ShareButton from './ShareButton';
 import TextPanel from './TextPanel';
 import UndoRedoButtons from './UndoRedoButtons';
 
+// Preview-only: rewrite the `@media (prefers-color-scheme: dark)` at-rules inside
+// the document's <style> blocks to `@media all` so the dark CSS applies in the
+// iframe regardless of the host's color-scheme. Scoped to <style> content (not a
+// blunt whole-document replace) so a Text block that happens to contain the
+// literal media-query string is never corrupted. See the call site for why the
+// result is a non-exportable preview artifact.
+const STYLE_BLOCK = /(<style\b[^>]*>)([\s\S]*?)(<\/style>)/gi;
+function forceDarkSchemeForPreview(html: string): string {
+  return html.replace(
+    STYLE_BLOCK,
+    (_match, open, css, close) => open + css.split('@media (prefers-color-scheme: dark)').join('@media all') + close
+  );
+}
+
 export default function TemplatePanel() {
   const document = useDocument();
   const selectedMainTab = useSelectedMainTab();
@@ -39,12 +53,18 @@ export default function TemplatePanel() {
   // applies the @media block (real clients trigger it via the user's system
   // setting), and the [data-ogsc]/[data-ogsb] Outlook.com hooks are inert here
   // (they only activate inside Outlook's dark renderer).
+  //
+  // IMPORTANT: the string this produces is a *preview artifact only* — it is
+  // unconditionally dark and MUST NOT be treated as exportable HTML. The real,
+  // responsive export comes from `renderToStaticMarkup` untouched (the "HTML"
+  // tab / download). A single HTML document cannot be both "force dark now" and
+  // "responsive when copied" — `prefers-color-scheme` can't be forced from
+  // outside the document — so this transform is deliberately quarantined here.
   const darkPreviewHtml = useMemo(() => {
     if (selectedColorScheme !== 'dark') {
       return null;
     }
-    const html = renderToStaticMarkup(document, { rootBlockId: 'root' });
-    return html.split('@media (prefers-color-scheme: dark)').join('@media all');
+    return forceDarkSchemeForPreview(renderToStaticMarkup(document, { rootBlockId: 'root' }));
   }, [document, selectedColorScheme]);
 
   let mainBoxSx: SxProps = {

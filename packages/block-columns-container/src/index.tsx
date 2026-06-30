@@ -174,7 +174,15 @@ function TableCell({ index, props, columns }: Props) {
   // width wins; otherwise fall back to the even split (table-layout:fixed already
   // produces this in modern clients, and CSS/!important mobile stacking still
   // overrides it). Belt-and-suspenders for the Word engine, no modern regression.
-  const widthAttr = props.fixedWidths?.[index] ?? (columnsCount === 3 ? '33.33%' : '50%');
+  //
+  // The even-split fallback only applies when NO column is pinned. Once any
+  // column has a fixed px width, the un-pinned columns must stay `auto` (no width
+  // attribute) so they absorb the table's remaining space. Emitting a percentage
+  // here instead would leave the declared widths summing to less than the 100%
+  // table, and `table-layout:fixed` redistributes that slack back across every
+  // column — inflating the pinned column past its requested px (the sizing bug).
+  const anyFixed = props.fixedWidths?.some((w) => w != null) ?? false;
+  const widthAttr = props.fixedWidths?.[index] ?? (anyFixed ? undefined : columnsCount === 3 ? '33.33%' : '50%');
   const children = (columns && columns[index]) ?? null;
   return (
     <td className={className} style={style} width={widthAttr}>

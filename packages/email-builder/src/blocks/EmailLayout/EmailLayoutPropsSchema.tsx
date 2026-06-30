@@ -1,11 +1,12 @@
 import { z } from 'zod';
 
-import { COLOR_SCHEMA, FONT_FAMILY_SCHEMA } from '@usewaypoint/block-kit';
+import { BORDER_RADIUS_SCHEMA, COLOR_SCHEMA, FONT_FAMILY_SCHEMA } from '@usewaypoint/block-kit';
 
 export const EmailLayoutPropsSchema = z.object({
   backdropColor: COLOR_SCHEMA,
   borderColor: COLOR_SCHEMA,
-  borderRadius: z.number().optional().nullable(),
+  // WS-07 (item 15-D): a number (all corners) or a per-corner object.
+  borderRadius: BORDER_RADIUS_SCHEMA,
   canvasColor: COLOR_SCHEMA,
   textColor: COLOR_SCHEMA,
   fontFamily: FONT_FAMILY_SCHEMA,

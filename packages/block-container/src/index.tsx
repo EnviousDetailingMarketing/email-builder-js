@@ -1,7 +1,15 @@
 import React, { CSSProperties } from 'react';
 import { z } from 'zod';
 
-import { COLOR_SCHEMA, getPadding, PADDING_SCHEMA, registerDarkColor, useStyleRegistry } from '@usewaypoint/block-kit';
+import {
+  BORDER_RADIUS_SCHEMA,
+  COLOR_SCHEMA,
+  getBorderRadius,
+  getPadding,
+  PADDING_SCHEMA,
+  registerDarkColor,
+  useStyleRegistry,
+} from '@usewaypoint/block-kit';
 
 // WS-07 (item 15-C): optional border controls. Historically the container border
 // was hardcoded to `1px solid <borderColor>`. These additive, optional fields let
@@ -25,7 +33,9 @@ export const ContainerPropsSchema = z.object({
     .object({
       backgroundColor: COLOR_SCHEMA,
       borderColor: COLOR_SCHEMA,
-      borderRadius: z.number().optional().nullable(),
+      // WS-07 (item 15-D): a number (all corners) or a per-corner object. A bare
+      // number is the legacy behavior, so existing documents are byte-identical.
+      borderRadius: BORDER_RADIUS_SCHEMA,
       // WS-07: optional border width (px). When a number, applies to all sides;
       // `borderWidthPerSide` (below) takes precedence when set for a given side.
       borderWidth: BORDER_WIDTH_SCHEMA,
@@ -93,7 +103,7 @@ export function Container({ style, children }: ContainerProps) {
   const wStyle: CSSProperties = {
     backgroundColor: style?.backgroundColor ?? undefined,
     ...getBorderStyles(style),
-    borderRadius: style?.borderRadius ?? undefined,
+    borderRadius: getBorderRadius(style?.borderRadius),
     padding: getPadding(style?.padding),
   };
   if (!children) {
